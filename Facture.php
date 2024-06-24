@@ -28,7 +28,7 @@ class Facture {
         $stmt = $this->conn->prepare($query);
 
         // Bind values
-        $stmt->bind_param("iiffffif", $this->examen_id, $this->prelevement_id, $this->total_prix, $this->prix_reduit, $this->avance, $this->montant_du, $this->rest, $this->etat_paiement);
+        $stmt->bind_param("iiddidds", $this->examen_id, $this->prelevement_id, $this->total_prix, $this->prix_reduit, $this->avance, $this->montant_du, $this->rest, $this->etat_paiement);
 
         if ($stmt->execute()) {
             return true;
@@ -64,7 +64,7 @@ class Facture {
         $stmt = $this->conn->prepare($query);
 
         // Bind values
-        $stmt->bind_param("iiffffifi", $this->examen_id, $this->prelevement_id, $this->total_prix, $this->prix_reduit, $this->avance, $this->montant_du, $this->rest, $this->etat_paiement, $this->facture_id);
+        $stmt->bind_param("iiddiddsi", $this->examen_id, $this->prelevement_id, $this->total_prix, $this->prix_reduit, $this->avance, $this->montant_du, $this->rest, $this->etat_paiement, $this->facture_id);
 
         if ($stmt->execute()) {
             return true;

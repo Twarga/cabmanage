@@ -5,76 +5,73 @@ ini_set('display_errors', 1);
 
 // Include the necessary files
 require_once 'config.php';
-require_once 'Prelevement.php';
 require_once 'Patient.php';
-require_once 'Examen.php';
+require_once 'Prelevement.php';
 require_once 'Facture.php';
 
 // Initialize the classes
 $db = $link;
-$prelevement = new Prelevement($db);
 $patient = new Patient($db);
-$examen = new Examen($db);
+$prelevement = new Prelevement($db);
 $facture = new Facture($db);
 
-// Fetch patient data and prelevement history if a patient is selected
-$patient_id = isset($_GET['patient_id']) ? $_GET['patient_id'] : null;
-$patient_data = $patient_id ? $patient->readOne($patient_id) : null;
-$prelevement_history = $patient_id ? $prelevement->readByPatient($patient_id) : [];
+// Get the patient ID from the URL
+$patient_id = isset($_GET['patient_id']) ? $_GET['patient_id'] : die('ERROR: Patient ID not found.');
 
-// Fetch examens for the dropdown
-$examens = $examen->read();
+// Fetch patient data
+$patient_data = $patient->readOne($patient_id);
 
-// Handle form submission
+// Handle form submission for creating a prelevement
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
-        $prelevement->patient_id = $_POST['patient_id'];
+        // Set prelevement properties
+        $prelevement->patient_id = $patient_id;
         $prelevement->type_prelevement = $_POST['type_prelevement'];
         $prelevement->date_reception = $_POST['date_reception'];
-        $prelevement->date_creation = date('Y-m-d'); // Current date
+        $prelevement->date_creation = date('Y-m-d');
         $prelevement->nombre_flacons = $_POST['nombre_flacons'];
-        $prelevement->ordonnance = null; // Handle file upload if necessary
+        $prelevement->ordonnance = $_FILES['ordonnance']['tmp_name'] ? file_get_contents($_FILES['ordonnance']['tmp_name']) : null;
         $prelevement->docteur_exterieur_id = $_POST['docteur_exterieur_id'];
         $prelevement->rapport_template = $_POST['rapport_template'];
         $prelevement->rapport_txt = $_POST['rapport_txt'];
         $prelevement->examen_id = $_POST['examen_id'];
 
-        // Facture details
-        $facture->examen_id = $prelevement->examen_id;
-        $facture->total_prix = $_POST['total_prix'];
-        $facture->prix_reduit = $_POST['prix_reduit'];
-        $facture->avance = $_POST['avance'];
-        $facture->montant_du = $facture->total_prix - $facture->prix_reduit - $facture->avance;
-        $facture->rest = $facture->montant_du;
-        $facture->etat_paiement = $_POST['etat_paiement'];
-
-        // Create prelevement and facture
+        // Create prelevement
         if ($prelevement->create()) {
-            $facture->prelevement_id = $prelevement->prelevement_id; // This needs to be fetched
-            if ($facture->create()) {
-                header("Location: create_prelevement.php?patient_id=" . $_POST['patient_id']);
-                exit;
+            // Set facture properties
+            $facture->examen_id = $prelevement->examen_id;
+            $facture->prelevement_id = $prelevement->prelevement_id;
+            $facture->total_prix = 100.0 * $prelevement->examen_id; // Example calculation
+            $facture->prix_reduit = $_POST['prix_reduit'];
+            $facture->avance = $_POST['avance'];
+            $facture->montant_du = $facture->total_prix - $facture->prix_reduit - $facture->avance;
+            $facture->rest = $facture->montant_du;
+            
+            if ($facture->montant_du == 0) {
+                $facture->etat_paiement = 'Payé';
+            } elseif ($facture->avance > 0) {
+                $facture->etat_paiement = 'Partiellement payé';
             } else {
-                echo "Error creating facture.";
+                $facture->etat_paiement = 'Non payé';
+            }
+
+            // Create facture
+            if ($facture->create()) {
+                echo "Prelevement and Facture created successfully for patient_id " . $prelevement->patient_id . ".<br>";
+            } else {
+                echo "Error creating facture for prelevement_id " . $prelevement->prelevement_id . ".<br>";
             }
         } else {
-            echo "Error creating prelevement.";
+            echo "Error creating prelevement for patient_id " . $prelevement->patient_id . ".<br>";
         }
     } catch (Exception $e) {
         echo "Error: " . $e->getMessage();
     }
 }
 
-// Handle deletion of a prelevement
-if (isset($_GET['delete_id'])) {
-    $prelevement_id = $_GET['delete_id'];
-    if ($prelevement->delete($prelevement_id)) {
-        header("Location: create_prelevement.php?patient_id=" . $patient_id);
-        exit;
-    } else {
-        echo "Error deleting prelevement.";
-    }
-}
+// Fetch prelevement history for the patient
+$prelevements_history = $prelevement->readByPatient($patient_id);
+
 ?>
 
 <!DOCTYPE html>
@@ -83,35 +80,37 @@ if (isset($_GET['delete_id'])) {
     <meta charset="UTF-8">
     <title>Create Prelevement</title>
     <script>
-        const examens = <?php echo json_encode($examens); ?>;
-
         function updateFacture() {
-            const examenSelect = document.getElementById('examen_id');
-            const selectedExamen = examens.find(examen => examen.examen_id == examenSelect.value);
-            if (selectedExamen) {
-                document.getElementById('total_prix').value = selectedExamen.prix;
-                calculateFacture();
+            const examenId = document.getElementById('examen_id').value;
+            let totalPrix = 0;
+            switch (examenId) {
+                case '1':
+                    totalPrix = 100;
+                    break;
+                case '2':
+                    totalPrix = 200;
+                    break;
+                case '3':
+                    totalPrix = 300;
+                    break;
+                default:
+                    totalPrix = 0;
             }
-        }
 
-        function calculateFacture() {
-            const totalPrix = parseFloat(document.getElementById('total_prix').value);
-            const prixReduit = parseFloat(document.getElementById('prix_reduit').value);
-            const avance = parseFloat(document.getElementById('avance').value);
+            const prixReduit = parseFloat(document.getElementById('prix_reduit').value) || 0;
+            const avance = parseFloat(document.getElementById('avance').value) || 0;
             const montantDu = totalPrix - prixReduit - avance;
             const rest = montantDu;
 
-            document.getElementById('montant_du').value = montantDu.toFixed(2);
-            document.getElementById('rest').value = rest.toFixed(2);
+            document.getElementById('total_prix').value = totalPrix;
+            document.getElementById('montant_du').value = montantDu;
+            document.getElementById('rest').value = rest;
         }
     </script>
 </head>
 <body>
-    <h2>Create Prelevement</h2>
-
-    <h3>New Prelevement</h3>
-    <form method="post" action="create_prelevement.php">
-        <input type="hidden" name="patient_id" value="<?php echo htmlspecialchars($patient_id); ?>">
+    <h2>Create Prelevement for <?php echo htmlspecialchars($patient_data['name'] . ' ' . $patient_data['prenom']); ?></h2>
+    <form method="post" enctype="multipart/form-data" action="create_prelevement.php?patient_id=<?php echo $patient_id; ?>">
         <label>Type Prelevement:</label>
         <select name="type_prelevement" required>
             <option value="Biopsie">Biopsie</option>
@@ -120,65 +119,57 @@ if (isset($_GET['delete_id'])) {
             <option value="Immuno Histochimique">Immuno Histochimique</option>
         </select><br>
         <label>Date Reception:</label><input type="date" name="date_reception" required><br>
-        <label>Nombre de Flacons:</label><input type="number" name="nombre_flacons" required><br>
+        <label>Nombre de flacons:</label><input type="number" name="nombre_flacons" required><br>
+        <label>Ordonnance:</label><input type="file" name="ordonnance"><br>
         <label>Docteur Exterieur:</label><input type="number" name="docteur_exterieur_id" required><br>
         <label>Rapport Template:</label><input type="text" name="rapport_template"><br>
         <label>Rapport Text:</label><input type="text" name="rapport_txt"><br>
         <label>Examen:</label>
-        <select name="examen_id" id="examen_id" onchange="updateFacture()" required>
-            <?php foreach ($examens as $examen): ?>
-                <option value="<?php echo $examen['examen_id']; ?>"><?php echo htmlspecialchars($examen['sub_type']); ?></option>
-            <?php endforeach; ?>
+        <select id="examen_id" name="examen_id" onchange="updateFacture()" required>
+            <option value="1">Examen Type 1</option>
+            <option value="2">Examen Type 2</option>
+            <option value="3">Examen Type 3</option>
         </select><br>
 
-        <h3>Facture</h3>
-        <label>Total Prix:</label><input type="number" id="total_prix" name="total_prix" readonly><br>
-        <label>Prix Reduit:</label><input type="number" id="prix_reduit" name="prix_reduit" value="0" oninput="calculateFacture()"><br>
-        <label>Avance:</label><input type="number" id="avance" name="avance" value="0" oninput="calculateFacture()"><br>
-        <label>Montant Du:</label><input type="number" id="montant_du" name="montant_du" readonly><br>
-        <label>Rest:</label><input type="number" id="rest" name="rest" readonly><br>
-        <label>Etat Paiement:</label>
-        <select name="etat_paiement" required>
-            <option value="Non payé">Non payé</option>
-            <option value="Partiellement payé">Partiellement payé</option>
-            <option value="Payé">Payé</option>
-        </select><br>
-
+        <h2>Facture</h2>
+        <label>Total Prix:</label><input type="text" id="total_prix" readonly><br>
+        <label>Prix Reduit:</label><input type="number" id="prix_reduit" name="prix_reduit" onchange="updateFacture()" required><br>
+        <label>Avance:</label><input type="number" id="avance" name="avance" onchange="updateFacture()" required><br>
+        <label>Montant Du:</label><input type="text" id="montant_du" readonly><br>
+        <label>Rest:</label><input type="text" id="rest" readonly><br>
+        
         <button type="submit">Create</button>
     </form>
 
-    <?php if ($prelevement_history): ?>
-        <h3>Prelevement History</h3>
-        <table border="1">
+    <h2>Prelevement History</h2>
+    <table border="1">
+        <tr>
+            <th>Prelevement ID</th>
+            <th>Type</th>
+            <th>Date Reception</th>
+            <th>Date Creation</th>
+            <th>Nombre de Flacons</th>
+            <th>Docteur Exterieur</th>
+            <th>Facture Etat</th>
+            <th>Rest</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+        <?php foreach ($prelevements_history as $history): 
+            $facture_data = $facture->readOne($history['prelevement_id']); ?>
             <tr>
-                <th>Prelevement ID</th>
-                <th>Type</th>
-                <th>Date Reception</th>
-                <th>Date Creation</th>
-                <th>Nombre de Flacons</th>
-                <th>Docteur Exterieur</th>
-                <th>Facture Etat</th>
-                <th>Rest</th>
-                <th>Edit</th>
-                <th>Delete</th>
+                <td><?php echo htmlspecialchars($history['prelevement_id']); ?></td>
+                <td><?php echo htmlspecialchars($history['type_prelevement']); ?></td>
+                <td><?php echo htmlspecialchars($history['date_reception']); ?></td>
+                <td><?php echo htmlspecialchars($history['date_creation']); ?></td>
+                <td><?php echo htmlspecialchars($history['nombre_flacons']); ?></td>
+                <td><?php echo htmlspecialchars($history['docteur_exterieur_id']); ?></td>
+                <td><?php echo htmlspecialchars($facture_data['etat_paiement'] ?? 'N/A'); ?></td>
+                <td><?php echo htmlspecialchars($facture_data['rest'] ?? 'N/A'); ?></td>
+                <td><a href="edit_prelevement.php?id=<?php echo $history['prelevement_id']; ?>">Edit</a></td>
+                <td><a href="delete_prelevement.php?id=<?php echo $history['prelevement_id']; ?>">Delete</a></td>
             </tr>
-            <?php foreach ($prelevement_history as $history): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($history['prelevement_id']); ?></td>
-                    <td><?php echo htmlspecialchars($history['type_prelevement']); ?></td>
-                    <td><?php echo htmlspecialchars($history['date_reception']); ?></td>
-                    <td><?php echo htmlspecialchars($history['date_creation']); ?></td>
-                    <td><?php echo htmlspecialchars($history['nombre_flacons']); ?></td>
-                    <td><?php echo htmlspecialchars($history['docteur_exterieur_id']); ?></td>
-                    <td><?php echo htmlspecialchars($history['etat_paiement']); ?></td>
-                    <td><?php echo htmlspecialchars($history['rest']); ?></td>
-                    <td><a href="edit_prelevement.php?id=<?php echo $history['prelevement_id']; ?>">Edit</a></td>
-                    <td><a href="create_prelevement.php?patient_id=<?php echo $patient_id; ?>&delete_id=<?php echo $history['prelevement_id']; ?>" onclick="return confirm('Are you sure you want to delete this prelevement?');">Delete</a></td>
-                </tr>
-            <?php endforeach; ?>
-        </table>
-    <?php endif; ?>
-
-    <a href="patient_management.php">Back to Patient Management</a>
+        <?php endforeach; ?>
+    </table>
 </body>
 </html>
