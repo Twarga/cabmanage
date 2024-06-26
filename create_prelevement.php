@@ -106,6 +106,12 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
             document.getElementById('montant_du').value = montantDu;
             document.getElementById('rest').value = rest;
         }
+
+        function confirmDelete(id) {
+            if (confirm("Are you sure you want to delete this prelevement?")) {
+                window.location.href = "delete_prelevement.php?id=" + id;
+            }
+        }
     </script>
 </head>
 <body>
@@ -167,7 +173,7 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
                 <td><?php echo htmlspecialchars($facture_data['etat_paiement'] ?? 'N/A'); ?></td>
                 <td><?php echo htmlspecialchars($facture_data['rest'] ?? 'N/A'); ?></td>
                 <td><a href="edit_prelevement.php?id=<?php echo $history['prelevement_id']; ?>">Edit</a></td>
-                <td><a href="delete_prelevement.php?id=<?php echo $history['prelevement_id']; ?>">Delete</a></td>
+                <td><a href="#" onclick="confirmDelete(<?php echo $history['prelevement_id']; ?>)">Delete</a></td>
             </tr>
         <?php endforeach; ?>
     </table>
