@@ -8,12 +8,14 @@ require_once 'config.php';
 require_once 'Patient.php';
 require_once 'Prelevement.php';
 require_once 'Facture.php';
+require_once 'Template.php';
 
 // Initialize the classes
 $db = $link;
 $patient = new Patient($db);
 $prelevement = new Prelevement($db);
 $facture = new Facture($db);
+$template = new Template($db);
 
 // Get the patient ID from the URL
 $patient_id = isset($_GET['patient_id']) ? $_GET['patient_id'] : die('ERROR: Patient ID not found.');
@@ -72,6 +74,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // Fetch prelevement history for the patient
 $prelevements_history = $prelevement->readByPatient($patient_id);
 
+// Fetch all templates
+$templates = $template->readAll();
 ?>
 
 <!DOCTYPE html>
@@ -79,44 +83,39 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
 <head>
     <meta charset="UTF-8">
     <title>Create Prelevement</title>
+    <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function updateFacture() {
-            const examenId = document.getElementById('examen_id').value;
-            let totalPrix = 0;
-            switch (examenId) {
-                case '1':
-                    totalPrix = 100;
-                    break;
-                case '2':
-                    totalPrix = 200;
-                    break;
-                case '3':
-                    totalPrix = 300;
-                    break;
-                default:
-                    totalPrix = 0;
-            }
-
-            const prixReduit = parseFloat(document.getElementById('prix_reduit').value) || 0;
-            const avance = parseFloat(document.getElementById('avance').value) || 0;
-            const montantDu = totalPrix - prixReduit - avance;
-            const rest = montantDu;
-
-            document.getElementById('total_prix').value = totalPrix;
-            document.getElementById('montant_du').value = montantDu;
-            document.getElementById('rest').value = rest;
-        }
-
-        function confirmDelete(id) {
-            if (confirm("Are you sure you want to delete this prelevement?")) {
-                window.location.href = "delete_prelevement.php?id=" + id;
+        function loadTemplate() {
+            const templateId = $('#rapport_template').val();
+            if (templateId) {
+                $.get('load_template.php', { template_id: templateId }, function(data) {
+                    const template = JSON.parse(data);
+                    CKEDITOR.instances.rapport_txt.setData(template.content);
+                });
             }
         }
+
+        // Search functionality for templates
+        $(document).ready(function() {
+            $('#rapport_template_search').on('input', function() {
+                const searchQuery = $(this).val().toLowerCase();
+                $('#rapport_template option').each(function() {
+                    const text = $(this).text().toLowerCase();
+                    if (text.includes(searchQuery)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+        });
     </script>
 </head>
 <body>
     <h2>Create Prelevement for <?php echo htmlspecialchars($patient_data['name'] . ' ' . $patient_data['prenom']); ?></h2>
     <form method="post" enctype="multipart/form-data" action="create_prelevement.php?patient_id=<?php echo $patient_id; ?>">
+        <h3>Prelevement Information</h3>
         <label>Type Prelevement:</label>
         <select name="type_prelevement" required>
             <option value="Biopsie">Biopsie</option>
@@ -128,26 +127,38 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
         <label>Nombre de flacons:</label><input type="number" name="nombre_flacons" required><br>
         <label>Ordonnance:</label><input type="file" name="ordonnance"><br>
         <label>Docteur Exterieur:</label><input type="number" name="docteur_exterieur_id" required><br>
-        <label>Rapport Template:</label><input type="text" name="rapport_template"><br>
-        <label>Rapport Text:</label><input type="text" name="rapport_txt"><br>
         <label>Examen:</label>
         <select id="examen_id" name="examen_id" onchange="updateFacture()" required>
             <option value="1">Examen Type 1</option>
             <option value="2">Examen Type 2</option>
             <option value="3">Examen Type 3</option>
         </select><br>
-
-        <h2>Facture</h2>
+        
+        <h3>Facture</h3>
         <label>Total Prix:</label><input type="text" id="total_prix" readonly><br>
         <label>Prix Reduit:</label><input type="number" id="prix_reduit" name="prix_reduit" onchange="updateFacture()" required><br>
         <label>Avance:</label><input type="number" id="avance" name="avance" onchange="updateFacture()" required><br>
         <label>Montant Du:</label><input type="text" id="montant_du" readonly><br>
         <label>Rest:</label><input type="text" id="rest" readonly><br>
         
+        <h3>Rapport</h3>
+        <label>Rapport Template:</label>
+        <input type="text" id="rapport_template_search" placeholder="Search Template">
+        <select id="rapport_template" name="rapport_template" onchange="loadTemplate()">
+            <option value="">Select Template</option>
+            <?php foreach ($templates as $template): ?>
+                <option value="<?php echo htmlspecialchars($template['template_id']); ?>"><?php echo htmlspecialchars($template['name']); ?></option>
+            <?php endforeach; ?>
+        </select><br>
+        <textarea name="rapport_txt" id="rapport_txt"></textarea>
+        <script>
+            CKEDITOR.replace('rapport_txt');
+        </script>
+        <br>
         <button type="submit">Create</button>
     </form>
 
-    <h2>Prelevement History</h2>
+    <h3>Prelevement History</h3>
     <table border="1">
         <tr>
             <th>Prelevement ID</th>
@@ -158,8 +169,10 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
             <th>Docteur Exterieur</th>
             <th>Facture Etat</th>
             <th>Rest</th>
+            <th>Ordonnance</th>
             <th>Edit</th>
             <th>Delete</th>
+            <th>Imprime</th>
         </tr>
         <?php foreach ($prelevements_history as $history): 
             $facture_data = $facture->readOne($history['prelevement_id']); ?>
@@ -172,8 +185,10 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
                 <td><?php echo htmlspecialchars($history['docteur_exterieur_id']); ?></td>
                 <td><?php echo htmlspecialchars($facture_data['etat_paiement'] ?? 'N/A'); ?></td>
                 <td><?php echo htmlspecialchars($facture_data['rest'] ?? 'N/A'); ?></td>
+                <td><?php echo $history['ordonnance'] ? '<a href="download_ordonance.php?id=' . $history['prelevement_id'] . '">Download</a>' : 'No Ordonnance'; ?></td>
                 <td><a href="edit_prelevement.php?id=<?php echo $history['prelevement_id']; ?>">Edit</a></td>
-                <td><a href="#" onclick="confirmDelete(<?php echo $history['prelevement_id']; ?>)">Delete</a></td>
+                <td><a href="delete_prelevement.php?id=<?php echo $history['prelevement_id']; ?>">Delete</a></td>
+                <td><a href="print_prelevement.php?id=<?php echo $history['prelevement_id']; ?>">Imprime</a></td>
             </tr>
         <?php endforeach; ?>
     </table>

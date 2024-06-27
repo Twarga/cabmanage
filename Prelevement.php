@@ -27,7 +27,7 @@ class Prelevement {
         $this->conn->begin_transaction();
         try {
             // Check if the examen_id exists
-            $query = "SELECT COUNT(*) AS count, prix FROM examens WHERE examen_id = ?";
+            $query = "SELECT COUNT(*) AS count FROM examens WHERE examen_id = ?";
             $stmt = $this->conn->prepare($query);
             $stmt->bind_param("i", $this->examen_id);
             $stmt->execute();
@@ -36,8 +36,6 @@ class Prelevement {
             if ($row['count'] == 0) {
                 throw new Exception("Invalid examen_id: " . $this->examen_id);
             }
-
-            $prix_examen = $row['prix'];
 
             // Create the prelevement
             $query = "INSERT INTO " . $this->table_name . " 
@@ -52,10 +50,9 @@ class Prelevement {
             $this->prelevement_id = $stmt->insert_id;
 
             // Create the facture
-            $query = "INSERT INTO factures (examen_id, prelevement_id, total_prix, prix_reduit, avance, montant_du, rest, etat_paiement) VALUES (?, ?, ?, 0, 0, ?, ?, 'Non payé')";
+            $query = "INSERT INTO factures (examen_id, prelevement_id, total_prix, prix_reduit, avance, montant_du, rest, etat_paiement) VALUES (?, ?, 0, 0, 0, 0, 0, 'Non payé')";
             $stmt = $this->conn->prepare($query);
-            $montant_du = $prix_examen;
-            $stmt->bind_param("iidddd", $this->examen_id, $this->prelevement_id, $prix_examen, $montant_du, $montant_du, $montant_du);
+            $stmt->bind_param("ii", $this->examen_id, $this->prelevement_id);
             if (!$stmt->execute()) {
                 throw new Exception("Error creating facture: " . $stmt->error);
             }
