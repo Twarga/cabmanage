@@ -24,7 +24,7 @@ $patient_id = isset($_GET['patient_id']) ? $_GET['patient_id'] : die('ERROR: Pat
 $patient_data = $patient->readOne($patient_id);
 
 // Handle form submission for creating a prelevement
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_prelevement'])) {
     try {
         // Set prelevement properties
         $prelevement->patient_id = $patient_id;
@@ -40,31 +40,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Create prelevement
         if ($prelevement->create()) {
-            // Set facture properties
-            $facture->examen_id = $prelevement->examen_id;
-            $facture->prelevement_id = $prelevement->prelevement_id;
-            $facture->total_prix = 100.0 * $prelevement->examen_id; // Example calculation
-            $facture->prix_reduit = $_POST['prix_reduit'];
-            $facture->avance = $_POST['avance'];
-            $facture->montant_du = $facture->total_prix - $facture->prix_reduit - $facture->avance;
-            $facture->rest = $facture->montant_du;
-            
-            if ($facture->montant_du == 0) {
-                $facture->etat_paiement = 'Payé';
-            } elseif ($facture->avance > 0) {
-                $facture->etat_paiement = 'Partiellement payé';
-            } else {
-                $facture->etat_paiement = 'Non payé';
-            }
+            // Check if facture already exists for this prelevement
+            $existing_facture = $facture->readOne($prelevement->prelevement_id);
+            if (!$existing_facture) {
+                // Set facture properties
+                $facture->examen_id = $prelevement->examen_id;
+                $facture->prelevement_id = $prelevement->prelevement_id;
+                $facture->total_prix = 100.0 * $prelevement->examen_id; // Example calculation
+                $facture->prix_reduit = $_POST['prix_reduit'];
+                $facture->avance = $_POST['avance'];
+                $facture->montant_du = $facture->total_prix - $facture->prix_reduit - $facture->avance;
+                $facture->rest = $facture->montant_du;
+                
+                if ($facture->montant_du == 0) {
+                    $facture->etat_paiement = 'Payé';
+                } elseif ($facture->avance > 0) {
+                    $facture->etat_paiement = 'Partiellement payé';
+                } else {
+                    $facture->etat_paiement = 'Non payé';
+                }
 
-            // Create facture
-            if ($facture->create()) {
-                echo "Prelevement and Facture created successfully for patient_id " . $prelevement->patient_id . ".<br>";
-            } else {
-                echo "Error creating facture for prelevement_id " . $prelevement->prelevement_id . ".<br>";
+                // Create facture
+                if ($facture->create()) {
+                    echo "Prelevement and Facture created successfully for patient_id " . $prelevement->patient_id . ".<br>";
+                } else {
+                    echo "Error creating facture for prelevement_id " . $prelevement->prelevement_id . ".<br>";
+                }
             }
         } else {
             echo "Error creating prelevement for patient_id " . $prelevement->patient_id . ".<br>";
+        }
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+    }
+}
+
+// Handle form submission for saving a template
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['save_template'])) {
+    try {
+        $template->name = $_POST['template_name'];
+        $template->content = $_POST['rapport_txt'];
+
+        if ($template->create()) {
+            echo "Template saved successfully.<br>";
+        } else {
+            echo "Error saving template.<br>";
         }
     } catch (Exception $e) {
         echo "Error: " . $e->getMessage();
@@ -110,6 +130,40 @@ $templates = $template->readAll();
                 });
             });
         });
+
+        function updateFacture() {
+            const examenId = $('#examen_id').val();
+            const prixReduit = parseFloat($('#prix_reduit').val()) || 0;
+            const avance = parseFloat($('#avance').val()) || 0;
+            const totalPrix = 100.0 * examenId; // Example calculation
+            const montantDu = totalPrix - prixReduit - avance;
+            const rest = montantDu;
+
+            $('#total_prix').val(totalPrix);
+            $('#montant_du').val(montantDu);
+            $('#rest').val(rest);
+        }
+
+        function confirmDelete(prelevement_id) {
+            if (confirm('Are you sure you want to delete this prelevement?')) {
+                window.location.href = 'delete_prelevement.php?id=' + prelevement_id;
+            }
+        }
+
+        function saveTemplate() {
+            const templateName = prompt('Enter template name:');
+            if (templateName) {
+                const rapportContent = CKEDITOR.instances.rapport_txt.getData();
+                $.post('create_prelevement.php?patient_id=<?php echo $patient_id; ?>', {
+                    save_template: true,
+                    template_name: templateName,
+                    rapport_txt: rapportContent
+                }, function(data) {
+                    alert(data);
+                    location.reload();
+                });
+            }
+        }
     </script>
 </head>
 <body>
@@ -155,7 +209,8 @@ $templates = $template->readAll();
             CKEDITOR.replace('rapport_txt');
         </script>
         <br>
-        <button type="submit">Create</button>
+        <button type="submit" name="create_prelevement">Create</button>
+        <button type="button" onclick="saveTemplate()">Save as Template</button>
     </form>
 
     <h3>Prelevement History</h3>
@@ -187,7 +242,7 @@ $templates = $template->readAll();
                 <td><?php echo htmlspecialchars($facture_data['rest'] ?? 'N/A'); ?></td>
                 <td><?php echo $history['ordonnance'] ? '<a href="download_ordonance.php?id=' . $history['prelevement_id'] . '">Download</a>' : 'No Ordonnance'; ?></td>
                 <td><a href="edit_prelevement.php?id=<?php echo $history['prelevement_id']; ?>">Edit</a></td>
-                <td><a href="delete_prelevement.php?id=<?php echo $history['prelevement_id']; ?>">Delete</a></td>
+                <td><a href="javascript:confirmDelete(<?php echo $history['prelevement_id']; ?>)">Delete</a></td>
                 <td><a href="print_prelevement.php?id=<?php echo $history['prelevement_id']; ?>">Imprime</a></td>
             </tr>
         <?php endforeach; ?>

@@ -5,12 +5,14 @@ ini_set('display_errors', 1);
 
 // Include the necessary files
 require_once 'config.php';
+require_once 'Patient.php';
 require_once 'Prelevement.php';
 require_once 'Facture.php';
 require_once 'Template.php';
 
 // Initialize the classes
 $db = $link;
+$patient = new Patient($db);
 $prelevement = new Prelevement($db);
 $facture = new Facture($db);
 $template = new Template($db);
@@ -21,11 +23,64 @@ $prelevement_id = isset($_GET['id']) ? $_GET['id'] : die('ERROR: Prelevement ID 
 // Fetch prelevement data
 $prelevement_data = $prelevement->readOne($prelevement_id);
 if (!$prelevement_data) {
-    die('ERROR: Prelevement ID not found.');
+    die('ERROR: Prelevement not found.');
 }
 
-// Fetch facture data for the prelevement
+// Fetch facture data
 $facture_data = $facture->readOne($prelevement_id);
+if (!$facture_data) {
+    die('ERROR: Facture not found.');
+}
+
+// Handle form submission for updating a prelevement
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_prelevement'])) {
+    try {
+        // Set prelevement properties
+        $prelevement->prelevement_id = $prelevement_id;
+        $prelevement->patient_id = $prelevement_data['patient_id'];
+        $prelevement->type_prelevement = $_POST['type_prelevement'];
+        $prelevement->date_reception = $_POST['date_reception'];
+        $prelevement->date_creation = $_POST['date_creation'];
+        $prelevement->nombre_flacons = $_POST['nombre_flacons'];
+        $prelevement->ordonnance = $_FILES['ordonnance']['tmp_name'] ? file_get_contents($_FILES['ordonnance']['tmp_name']) : $prelevement_data['ordonnance'];
+        $prelevement->docteur_exterieur_id = $_POST['docteur_exterieur_id'];
+        $prelevement->rapport_template = $_POST['rapport_template'];
+        $prelevement->rapport_txt = $_POST['rapport_txt'];
+        $prelevement->examen_id = $_POST['examen_id'];
+
+        // Update prelevement
+        if ($prelevement->update()) {
+            // Set facture properties
+            $facture->facture_id = $facture_data['facture_id'];
+            $facture->examen_id = $prelevement->examen_id;
+            $facture->prelevement_id = $prelevement->prelevement_id;
+            $facture->total_prix = 100.0 * $prelevement->examen_id; // Example calculation
+            $facture->prix_reduit = $_POST['prix_reduit'];
+            $facture->avance = $_POST['avance'];
+            $facture->montant_du = $facture->total_prix - $facture->prix_reduit - $facture->avance;
+            $facture->rest = $facture->montant_du;
+
+            if ($facture->montant_du == 0) {
+                $facture->etat_paiement = 'Payé';
+            } elseif ($facture->avance > 0) {
+                $facture->etat_paiement = 'Partiellement payé';
+            } else {
+                $facture->etat_paiement = 'Non payé';
+            }
+
+            // Update facture
+            if ($facture->update()) {
+                echo "Prelevement and Facture updated successfully for prelevement_id " . $prelevement->prelevement_id . ".<br>";
+            } else {
+                echo "Error updating facture for prelevement_id " . $prelevement->prelevement_id . ".<br>";
+            }
+        } else {
+            echo "Error updating prelevement for prelevement_id " . $prelevement->prelevement_id . ".<br>";
+        }
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+    }
+}
 
 // Fetch all templates
 $templates = $template->readAll();
@@ -35,7 +90,7 @@ $templates = $template->readAll();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Prelevement</title>
+    <title>Update Prelevement</title>
     <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -48,21 +103,6 @@ $templates = $template->readAll();
                 });
             }
         }
-
-        // Search functionality for templates
-        $(document).ready(function() {
-            $('#rapport_template_search').on('input', function() {
-                const searchQuery = $(this).val().toLowerCase();
-                $('#rapport_template option').each(function() {
-                    const text = $(this).text().toLowerCase();
-                    if (text.includes(searchQuery)) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
-                });
-            });
-        });
 
         function updateFacture() {
             const examenId = $('#examen_id').val();
@@ -100,7 +140,7 @@ $templates = $template->readAll();
     </script>
 </head>
 <body>
-    <h2>Edit Prelevement for <?php echo htmlspecialchars($prelevement_data['patient_id']); ?></h2>
+    <h2>Update Prelevement for <?php echo htmlspecialchars($prelevement_data['patient_id']); ?></h2>
     <form method="post" enctype="multipart/form-data" action="update_prelevement.php?id=<?php echo $prelevement_id; ?>">
         <h3>Prelevement Information</h3>
         <label>Type Prelevement:</label>

@@ -45,11 +45,11 @@ class Facture {
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Read one facture by ID
-    public function readOne($id) {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE facture_id = ?";
+    // Read one facture by prelevement ID
+    public function readOne($prelevement_id) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE prelevement_id = ?";
         $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("i", $id);
+        $stmt->bind_param("i", $prelevement_id);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_assoc();
@@ -60,12 +60,12 @@ class Facture {
         $query = "UPDATE " . $this->table_name . " 
                   SET examen_id = ?, prelevement_id = ?, total_prix = ?, prix_reduit = ?, avance = ?, montant_du = ?, rest = ?, etat_paiement = ? 
                   WHERE facture_id = ?";
-
+    
         $stmt = $this->conn->prepare($query);
-
+    
         // Bind values
         $stmt->bind_param("iiddiddsi", $this->examen_id, $this->prelevement_id, $this->total_prix, $this->prix_reduit, $this->avance, $this->montant_du, $this->rest, $this->etat_paiement, $this->facture_id);
-
+    
         if ($stmt->execute()) {
             return true;
         } else {
@@ -73,6 +73,7 @@ class Facture {
             return false;
         }
     }
+    
 
     // Delete facture
     public function delete($id) {
