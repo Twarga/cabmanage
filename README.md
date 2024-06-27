@@ -40,37 +40,37 @@
 - [x] Implement a basic page to display prélèvement history.
 
 ## Module 6: Factures Management
-- [ ] Create Facture Model
-  - [ ] Define methods for creating, reading, updating, and deleting factures.
-- [ ] Create Facture API
-  - [ ] Set up API endpoints for facture operations.
-  - [ ] Create simple HTML forms to test facture creation, reading, updating, and deletion.
-- [ ] Create Facture Pages
+- [x] Create Facture Model
+  - [x] Define methods for creating, reading, updating, and deleting factures.
+- [x] Create Facture API
+  - [x] Set up API endpoints for facture operations.
+  - [x] Create simple HTML forms to test facture creation, reading, updating, and deletion.
+- [x] Create Facture Pages
   - [ ] Implement a basic page to display facture details and history.
 
 ## Module 7: Examens Management
-- [ ] Create Examen Model
+- [x] Create Examen Model
   - [ ] Define methods for creating, reading, updating, and deleting examens.
 - [ ] Create Examen API
   - [ ] Set up API endpoints for examen operations.
   - [ ] Create simple HTML forms to test examen creation, reading, updating, and deletion.
 
 ## Module 8: External Doctors Management
-- [ ] Create External Doctor Model
-  - [ ] Define methods for creating, reading, updating, and deleting external doctors.
-- [ ] Create External Doctor API
-  - [ ] Set up API endpoints for external doctor operations.
-  - [ ] Create simple HTML forms to test external doctor creation, reading, updating, and deletion.
+- [x] Create External Doctor Model
+  - [x] Define methods for creating, reading, updating, and deleting external doctors.
+- [x] Create External Doctor API
+  - [x] Set up API endpoints for external doctor operations.
+  - [x] Create simple HTML forms to test external doctor creation, reading, updating, and deletion.
 
 ## Module 9: Reporting
-- [ ] Generate Reports
-  - [ ] Implement methods to generate and download reports in PDF format.
-  - [ ] Create simple HTML links/buttons to test report generation.
+- [x] Generate Reports
+  - [x] Implement methods to generate and download reports in PDF format.
+  - [x] Create simple HTML links/buttons to test report generation.
 
 ## Module 10: Dashboard and Logout
-- [ ] Create Dashboard
-  - [ ] Implement a basic dashboard for both Doctors and Assistants.
-  - [ ] Integrate patient management, prélèvement management, facture management, and reporting functionalities.
-- [ ] Create Logout Functionality
-  - [ ] Implement a logout mechanism to end user sessions securely.
-  - [ ] Create a simple HTML button to test logout functionality.
+- [x] Create Dashboard
+  - [x] Implement a basic dashboard for both Doctors and Assistants.
+  - [x] Integrate patient management, prélèvement management, facture management, and reporting functionalities.
+- [x] Create Logout Functionality
+  - [x] Implement a logout mechanism to end user sessions securely.
+  - [x] Create a simple HTML button to test logout functionality.
