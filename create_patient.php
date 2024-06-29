@@ -28,26 +28,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $type_assurance = $_POST['type_assurance'];
         $numero_assurance = $_POST['numero_assurance'];
 
-        // Debug output for verification
-        echo "Data before insertion:<br>";
-        echo "name: $name<br>";
-        echo "prenom: $prenom<br>";
-        echo "date_naissance: $date_naissance<br>";
-        echo "age: $age<br>";
-        echo "type_identification: $type_identification<br>";
-        echo "identification_number: $identification_number<br>";
-        echo "email: $email<br>";
-        echo "phone_number: $phone_number<br>";
-        echo "situation_familiale: $situation_familiale<br>";
-        echo "sexe: $sexe<br>";
-        echo "adresse: $adresse<br>";
-        echo "type_assurance: $type_assurance<br>";
-        echo "numero_assurance: $numero_assurance<br>";
-
-        // Insert patient data
-        $patient->create($name, $prenom, $date_naissance, $age, $type_identification, $identification_number, $email, $phone_number, $situation_familiale, $sexe, $adresse, $type_assurance, $numero_assurance);
-        header("Location: patient_management.php");
-        exit;
+        // Check if patient already exists
+        if ($patient->exists($identification_number, $email)) {
+            echo "Error: Patient with this ID or email already exists.";
+        } else {
+            // Insert patient data
+            $patient->create($name, $prenom, $date_naissance, $age, $type_identification, $identification_number, $email, $phone_number, $situation_familiale, $sexe, $adresse, $type_assurance, $numero_assurance);
+            header("Location: patient_management.php");
+            exit;
+        }
     } catch (Exception $e) {
         echo "Error: " . $e->getMessage();
     }

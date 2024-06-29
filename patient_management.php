@@ -11,14 +11,8 @@ require_once 'Patient.php';
 $db = $link;
 $patient = new Patient($db);
 
-// Fetch all patients or search results
-$patients = [];
-if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['search_term'])) {
-    $search_term = $_POST['search_term'];
-    $patients = $patient->search($search_term);
-} else {
-    $patients = $patient->read();
-}
+// Fetch all patients sorted by creation date in descending order
+$patients = $patient->readAll();
 ?>
 
 <!DOCTYPE html>
@@ -72,11 +66,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['search_term'])) {
                 <td>
                     <a href="edit_patient.php?id=<?php echo $patient['patient_id']; ?>">Edit</a>
                     <a href="delete_patient.php?id=<?php echo $patient['patient_id']; ?>" onclick="return confirm('Are you sure you want to delete this patient?')">Delete</a>
-                    <a href="view_patient.php?id=<?php echo $patient['patient_id']; ?>">View</a>
+                    <a href="view_patient_assistance.php?id=<?php echo $patient['patient_id']; ?>">View</a>
                 </td>
             </tr>
         <?php } ?>
     </table>
-    <a href="create_patient.php">Create New Patient</a>
 </body>
 </html>

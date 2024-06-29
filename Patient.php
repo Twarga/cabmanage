@@ -75,6 +75,28 @@ class Patient {
         $stmt->bind_param("i", $id);
         return $stmt->execute();
     }
+    public function exists($identification_number, $email) {
+        $query = "SELECT * FROM patients WHERE identification_number = ? OR email = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("ss", $identification_number, $email);
+        $stmt->execute();
+        $stmt->store_result();
+        return $stmt->num_rows > 0;
+    }
+    
+    public function readAll() {
+        $query = "SELECT * FROM patients ORDER BY created_at DESC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $patients = array();
+        while ($row = $result->fetch_assoc()) {
+            $patients[] = $row;
+        }
+        return $patients;
+    }
+    
+    
 }
 
 ?>
