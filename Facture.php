@@ -87,5 +87,15 @@ class Facture {
             return false;
         }
     }
+    public function deleteByPrelevement($prelevement_id) {
+        $query = "DELETE FROM factures WHERE prelevement_id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('i', $prelevement_id);
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
+    }
+
 }
 ?>

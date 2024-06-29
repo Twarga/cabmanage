@@ -13,8 +13,8 @@ if ($_SESSION['user_type'] !== 'Assistant') {
 </head>
 <body>
     <h2>Assistant Dashboard</h2>
-    <a href="patient_management.php">Patient Management</a>
-    <a href="prelevement_management.php">Prelevement Management</a>
-    <a href="logout.php">Logout</a>
+    <li><a href="patient_management_assistance.php">Patient Management</a></li>
+    <li><a href="prelevement_management_assistant.php">Prelevement Management</a></li>
+    <li><a href="logout.php">Logout</a></li>
 </body>
 </html>

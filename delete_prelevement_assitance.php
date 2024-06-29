@@ -27,7 +27,7 @@ if ($facture_data) {
 
 // Delete the prelevement
 if ($prelevement->delete($prelevement_id)) {
-    header("Location: create_prelevement.php?patient_id=" . $patient_id);
+    header("Location: create_prelevement_assistant.php?patient_id=" . $patient_id);
     exit;
 } else {
     die('Error deleting prelevement.');

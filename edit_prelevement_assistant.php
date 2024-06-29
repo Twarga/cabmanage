@@ -7,13 +7,11 @@ ini_set('display_errors', 1);
 require_once 'config.php';
 require_once 'Prelevement.php';
 require_once 'Facture.php';
-require_once 'Template.php';
 
 // Initialize the classes
 $db = $link;
 $prelevement = new Prelevement($db);
 $facture = new Facture($db);
-$template = new Template($db);
 
 // Get the prelevement ID from the URL
 $prelevement_id = isset($_GET['id']) ? $_GET['id'] : die('ERROR: Prelevement ID not found.');
@@ -26,9 +24,6 @@ if (!$prelevement_data) {
 
 // Fetch facture data for the prelevement
 $facture_data = $facture->readOne($prelevement_id);
-
-// Fetch all templates
-$templates = $template->readAll();
 ?>
 
 <!DOCTYPE html>
@@ -36,34 +31,8 @@ $templates = $template->readAll();
 <head>
     <meta charset="UTF-8">
     <title>Edit Prelevement</title>
-    <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function loadTemplate() {
-            const templateId = $('#rapport_template').val();
-            if (templateId) {
-                $.get('load_template.php', { template_id: templateId }, function(data) {
-                    const template = JSON.parse(data);
-                    CKEDITOR.instances.rapport_txt.setData(template.content);
-                });
-            }
-        }
-
-        // Search functionality for templates
-        $(document).ready(function() {
-            $('#rapport_template_search').on('input', function() {
-                const searchQuery = $(this).val().toLowerCase();
-                $('#rapport_template option').each(function() {
-                    const text = $(this).text().toLowerCase();
-                    if (text.includes(searchQuery)) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
-                });
-            });
-        });
-
         function updateFacture() {
             const examenId = $('#examen_id').val();
             const prixReduit = parseFloat($('#prix_reduit').val()) || 0;
@@ -82,26 +51,11 @@ $templates = $template->readAll();
                 window.location.href = 'delete_prelevement.php?id=' + prelevement_id;
             }
         }
-
-        function saveTemplate() {
-            const templateName = prompt('Enter template name:');
-            if (templateName) {
-                const rapportContent = CKEDITOR.instances.rapport_txt.getData();
-                $.post('create_prelevement.php?patient_id=<?php echo $prelevement_data['patient_id']; ?>', {
-                    save_template: true,
-                    template_name: templateName,
-                    rapport_txt: rapportContent
-                }, function(data) {
-                    alert(data);
-                    location.reload();
-                });
-            }
-        }
     </script>
 </head>
 <body>
     <h2>Edit Prelevement for <?php echo htmlspecialchars($prelevement_data['patient_id']); ?></h2>
-    <form method="post" enctype="multipart/form-data" action="update_prelevement.php?id=<?php echo $prelevement_id; ?>">
+    <form method="post" enctype="multipart/form-data" action="update_prelevement_assistant.php?id=<?php echo $prelevement_id; ?>">
         <h3>Prelevement Information</h3>
         <label>Type Prelevement:</label>
         <select name="type_prelevement" required>
@@ -129,23 +83,9 @@ $templates = $template->readAll();
         <label>Montant Du:</label><input type="text" id="montant_du" value="<?php echo htmlspecialchars($facture_data['montant_du']); ?>" readonly><br>
         <label>Rest:</label><input type="text" id="rest" value="<?php echo htmlspecialchars($facture_data['rest']); ?>" readonly><br>
         
-        <h3>Rapport</h3>
-        <label>Rapport Template:</label>
-        <input type="text" id="rapport_template_search" placeholder="Search Template">
-        <select id="rapport_template" name="rapport_template" onchange="loadTemplate()">
-            <option value="">Select Template</option>
-            <?php foreach ($templates as $template): ?>
-                <option value="<?php echo htmlspecialchars($template['template_id']); ?>" <?php if ($prelevement_data['rapport_template'] == $template['template_id']) echo 'selected'; ?>><?php echo htmlspecialchars($template['name']); ?></option>
-            <?php endforeach; ?>
-        </select><br>
-        <textarea name="rapport_txt" id="rapport_txt"><?php echo htmlspecialchars($prelevement_data['rapport_txt']); ?></textarea>
-        <script>
-            CKEDITOR.replace('rapport_txt');
-        </script>
-        <br>
         <button type="submit" name="update_prelevement">Update</button>
     </form>
-    <form method="get" action="create_prelevement.php">
+    <form method="get" action="create_prelevement_assistant.php">
         <button type="submit">Back to Create Prelevement</button>
     </form>
 </body>

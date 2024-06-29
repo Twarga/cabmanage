@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['search_term'])) {
     <h2>Patient Management</h2>
     <a href="create_patient.php">Create New Patient</a>
 
-    <form method="post" action="patient_management.php">
+    <form method="post" action="patient_management_assistance.php">
         <label>Search:</label>
         <input type="text" name="search_term" placeholder="Enter name, ID, or date of birth">
         <button type="submit">Search</button>
@@ -72,11 +72,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['search_term'])) {
                 <td>
                     <a href="edit_patient.php?id=<?php echo $patient['patient_id']; ?>">Edit</a>
                     <a href="delete_patient.php?id=<?php echo $patient['patient_id']; ?>" onclick="return confirm('Are you sure you want to delete this patient?')">Delete</a>
-                    <a href="view_patient.php?id=<?php echo $patient['patient_id']; ?>">View</a>
+                    <a href="view_patient_assistance.php?id=<?php echo $patient['patient_id']; ?>">View</a>
                 </td>
             </tr>
         <?php } ?>
     </table>
-    <a href="create_patient.php">Create New Patient</a>
 </body>
 </html>
