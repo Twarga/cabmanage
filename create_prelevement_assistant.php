@@ -8,18 +8,23 @@ require_once 'config.php';
 require_once 'Patient.php';
 require_once 'Prelevement.php';
 require_once 'Facture.php';
+require_once 'Examen.php'; // Include the Examen class
 
 // Initialize the classes
 $db = $link;
 $patient = new Patient($db);
 $prelevement = new Prelevement($db);
 $facture = new Facture($db);
+$examen = new Examen($db); // Initialize the Examen class
 
 // Get the patient ID from the URL
 $patient_id = isset($_GET['patient_id']) ? $_GET['patient_id'] : die('ERROR: Patient ID not found.');
 
 // Fetch patient data
 $patient_data = $patient->readOne($patient_id);
+
+// Fetch all examens
+$examens = $examen->read(); // Fetch all examens
 
 // Handle form submission for creating a prelevement
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_prelevement'])) {
@@ -47,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_prelevement']))
                 $facture->avance = $_POST['avance'];
                 $facture->montant_du = $facture->total_prix - $facture->prix_reduit - $facture->avance;
                 $facture->rest = $facture->montant_du;
-                
+
                 if ($facture->montant_du == 0) {
                     $facture->etat_paiement = 'Payé';
                 } elseif ($facture->avance > 0) {
@@ -81,7 +86,69 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
     <meta charset="UTF-8">
     <title>Create Prelevement</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .dropdown-search {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-search input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .dropdown-search-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 100%;
+            overflow: auto;
+            border: 1px solid #ddd;
+            z-index: 1;
+        }
+
+        .dropdown-search-content a {
+            color: black;
+            padding: 8px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-search a:hover {
+            background-color: #ddd;
+        }
+    </style>
     <script>
+        $(document).ready(function () {
+            $('#search_examen').on('keyup', function () {
+                var filter = $(this).val().toLowerCase();
+                $('.dropdown-search-content.examen a').each(function () {
+                    if ($(this).text().toLowerCase().indexOf(filter) > -1) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            $('#search_examen').on('focus', function () {
+                $('.dropdown-search-content.examen').show();
+            });
+
+            $('#search_examen').on('blur', function () {
+                setTimeout(function () {
+                    $('.dropdown-search-content.examen').hide();
+                }, 200);
+            });
+
+            $('.dropdown-search-content.examen a').on('click', function () {
+                $('#search_examen').val($(this).text());
+                $('#examen_id').val($(this).data('id'));
+                $('.dropdown-search-content.examen').hide();
+                updateFacture();
+            });
+        });
+
         function updateFacture() {
             const examenId = $('#examen_id').val();
             const prixReduit = parseFloat($('#prix_reduit').val()) || 0;
@@ -97,7 +164,7 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
 
         function confirmDelete(prelevement_id, patient_id) {
             if (confirm('Are you sure you want to delete this prelevement?')) {
-                window.location.href = 'delete_prelevement_assitance.php?id=' + prelevement_id + '&patient_id=' + patient_id;
+                window.location.href = 'delete_prelevement_assistant.php?id=' + prelevement_id + '&patient_id=' + patient_id;
             }
         }
     </script>
@@ -117,20 +184,25 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
         <label>Nombre de flacons:</label><input type="number" name="nombre_flacons" required><br>
         <label>Ordonnance:</label><input type="file" name="ordonnance"><br>
         <label>Docteur Exterieur:</label><input type="number" name="docteur_exterieur_id" required><br>
+
         <label>Examen:</label>
-        <select id="examen_id" name="examen_id" onchange="updateFacture()" required>
-            <option value="1">Examen Type 1</option>
-            <option value="2">Examen Type 2</option>
-            <option value="3">Examen Type 3</option>
-        </select><br>
-        
+        <div class="dropdown-search">
+            <input type="text" id="search_examen" placeholder="Search Examen">
+            <div class="dropdown-search-content examen">
+                <?php foreach ($examens as $examen): ?>
+                    <a href="#" data-id="<?php echo htmlspecialchars($examen['examen_id']); ?>"><?php echo htmlspecialchars($examen['sub_type']); ?></a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <input type="hidden" id="examen_id" name="examen_id" required><br>
+
         <h3>Facture</h3>
         <label>Total Prix:</label><input type="text" id="total_prix" readonly><br>
         <label>Prix Reduit:</label><input type="number" id="prix_reduit" name="prix_reduit" onchange="updateFacture()" required><br>
         <label>Avance:</label><input type="number" id="avance" name="avance" onchange="updateFacture()" required><br>
-        <label>Montant Du:</label><input type="text" id="montant_du" readonly><br>
+        <label>Montant Du:</label><input type="number" id="montant_du" name="montant_du" onchange="updateFacture()" required><br>
         <label>Rest:</label><input type="text" id="rest" readonly><br>
-        
+
         <button type="submit" name="create_prelevement">Create</button>
     </form>
 

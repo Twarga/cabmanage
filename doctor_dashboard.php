@@ -16,6 +16,7 @@ if ($_SESSION['user_type'] !== 'Docteur') {
     <ul>
         <li><a href="patient_management.php">Patient Management</a></li>
         <li><a href="prelevement_management.php">Prelevement Management</a></li>
+        <li><a href="examen.php">Examen Management</a></li>
         <li><a href="logout.php">Logout</a></li>
     </ul>
 </body>

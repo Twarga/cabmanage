@@ -9,6 +9,7 @@ require_once 'Patient.php';
 require_once 'Prelevement.php';
 require_once 'Facture.php';
 require_once 'Template.php';
+require_once 'Examen.php'; // Include the Examen class
 
 // Initialize the classes
 $db = $link;
@@ -16,12 +17,19 @@ $patient = new Patient($db);
 $prelevement = new Prelevement($db);
 $facture = new Facture($db);
 $template = new Template($db);
+$examen = new Examen($db); // Initialize the Examen class
 
 // Get the patient ID from the URL
 $patient_id = isset($_GET['patient_id']) ? $_GET['patient_id'] : die('ERROR: Patient ID not found.');
 
 // Fetch patient data
 $patient_data = $patient->readOne($patient_id);
+
+// Fetch all examens
+$examens = $examen->read(); // Fetch all examens
+
+// Fetch all templates
+$templates = $template->readAll(); // Fetch all templates
 
 // Handle form submission for creating a prelevement
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_prelevement'])) {
@@ -51,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_prelevement']))
                 $facture->avance = $_POST['avance'];
                 $facture->montant_du = $facture->total_prix - $facture->prix_reduit - $facture->avance;
                 $facture->rest = $facture->montant_du;
-                
+
                 if ($facture->montant_du == 0) {
                     $facture->etat_paiement = 'Payé';
                 } elseif ($facture->avance > 0) {
@@ -93,9 +101,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['save_template'])) {
 
 // Fetch prelevement history for the patient
 $prelevements_history = $prelevement->readByPatient($patient_id);
-
-// Fetch all templates
-$templates = $template->readAll();
 ?>
 
 <!DOCTYPE html>
@@ -105,7 +110,97 @@ $templates = $template->readAll();
     <title>Create Prelevement</title>
     <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .dropdown-search {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-search input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .dropdown-search-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 100%;
+            overflow: auto;
+            border: 1px solid #ddd;
+            z-index: 1;
+        }
+
+        .dropdown-search-content a {
+            color: black;
+            padding: 8px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-search a:hover {
+            background-color: #ddd;
+        }
+    </style>
     <script>
+        $(document).ready(function () {
+            $('#search_examen').on('keyup', function () {
+                var filter = $(this).val().toLowerCase();
+                $('.dropdown-search-content.examen a').each(function () {
+                    if ($(this).text().toLowerCase().indexOf(filter) > -1) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            $('#search_examen').on('focus', function () {
+                $('.dropdown-search-content.examen').show();
+            });
+
+            $('#search_examen').on('blur', function () {
+                setTimeout(function () {
+                    $('.dropdown-search-content.examen').hide();
+                }, 200);
+            });
+
+            $('.dropdown-search-content.examen a').on('click', function () {
+                $('#search_examen').val($(this).text());
+                $('#examen_id').val($(this).data('id'));
+                $('.dropdown-search-content.examen').hide();
+                updateFacture();
+            });
+
+            $('#search_template').on('keyup', function () {
+                var filter = $(this).val().toLowerCase();
+                $('.dropdown-search-content.template a').each(function () {
+                    if ($(this).text().toLowerCase().indexOf(filter) > -1) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            $('#search_template').on('focus', function () {
+                $('.dropdown-search-content.template').show();
+            });
+
+            $('#search_template').on('blur', function () {
+                setTimeout(function () {
+                    $('.dropdown-search-content.template').hide();
+                }, 200);
+            });
+
+            $('.dropdown-search-content.template a').on('click', function () {
+                $('#search_template').val($(this).text());
+                $('#rapport_template').val($(this).data('id'));
+                $('.dropdown-search-content.template').hide();
+                loadTemplate();
+            });
+        });
+
         function loadTemplate() {
             const templateId = $('#rapport_template').val();
             if (templateId) {
@@ -115,21 +210,6 @@ $templates = $template->readAll();
                 });
             }
         }
-
-        // Search functionality for templates
-        $(document).ready(function() {
-            $('#rapport_template_search').on('input', function() {
-                const searchQuery = $(this).val().toLowerCase();
-                $('#rapport_template option').each(function() {
-                    const text = $(this).text().toLowerCase();
-                    if (text.includes(searchQuery)) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
-                });
-            });
-        });
 
         function updateFacture() {
             const examenId = $('#examen_id').val();
@@ -181,29 +261,36 @@ $templates = $template->readAll();
         <label>Nombre de flacons:</label><input type="number" name="nombre_flacons" required><br>
         <label>Ordonnance:</label><input type="file" name="ordonnance"><br>
         <label>Docteur Exterieur:</label><input type="number" name="docteur_exterieur_id" required><br>
+
         <label>Examen:</label>
-        <select id="examen_id" name="examen_id" onchange="updateFacture()" required>
-            <option value="1">Examen Type 1</option>
-            <option value="2">Examen Type 2</option>
-            <option value="3">Examen Type 3</option>
-        </select><br>
-        
+        <div class="dropdown-search">
+            <input type="text" id="search_examen" placeholder="Search Examen">
+            <div class="dropdown-search-content examen">
+                <?php foreach ($examens as $examen): ?>
+                    <a href="#" data-id="<?php echo htmlspecialchars($examen['examen_id']); ?>"><?php echo htmlspecialchars($examen['sub_type']); ?></a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <input type="hidden" id="examen_id" name="examen_id" required><br>
+
         <h3>Facture</h3>
         <label>Total Prix:</label><input type="text" id="total_prix" readonly><br>
         <label>Prix Reduit:</label><input type="number" id="prix_reduit" name="prix_reduit" onchange="updateFacture()" required><br>
         <label>Avance:</label><input type="number" id="avance" name="avance" onchange="updateFacture()" required><br>
         <label>Montant Du:</label><input type="number" id="montant_du" name="montant_du" onchange="updateFacture()" required><br>
         <label>Rest:</label><input type="text" id="rest" readonly><br>
-        
+
         <h3>Rapport</h3>
         <label>Rapport Template:</label>
-        <input type="text" id="rapport_template_search" placeholder="Search Template">
-        <select id="rapport_template" name="rapport_template" onchange="loadTemplate()">
-            <option value="">Select Template</option>
-            <?php foreach ($templates as $template): ?>
-                <option value="<?php echo htmlspecialchars($template['template_id']); ?>"><?php echo htmlspecialchars($template['name']); ?></option>
-            <?php endforeach; ?>
-        </select><br>
+        <div class="dropdown-search">
+            <input type="text" id="search_template" placeholder="Search Template">
+            <div class="dropdown-search-content template">
+                <?php foreach ($templates as $template): ?>
+                    <a href="#" data-id="<?php echo htmlspecialchars($template['template_id']); ?>"><?php echo htmlspecialchars($template['name']); ?></a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <input type="hidden" id="rapport_template" name="rapport_template"><br>
         <textarea name="rapport_txt" id="rapport_txt"></textarea>
         <script>
             CKEDITOR.replace('rapport_txt');
