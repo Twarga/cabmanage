@@ -29,7 +29,7 @@ if (isset($_GET['search'])) {
 </head>
 <body>
     <h2>Prelevement Management</h2>
-    
+    <a href='doctor_dashboard.php'>Back to Doctor Dashboard</a>
     <form method="get" action="prelevement_management.php">
         <input type="text" name="search" placeholder="Search Patients">
         <button type="submit">Search</button>

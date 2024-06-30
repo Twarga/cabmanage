@@ -96,6 +96,12 @@ class Facture {
         }
         return false;
     }
+    public function deleteByExamenId($examen_id) {
+        $query = "DELETE FROM " . $this->table_name . " WHERE examen_id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $examen_id);
+        return $stmt->execute();
+    }
 
 }
 ?>

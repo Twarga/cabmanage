@@ -24,6 +24,7 @@ $patients = $patient->readAll();
 <body>
     <h2>Patient Management</h2>
     <a href="create_patient.php">Create New Patient</a>
+    <a href='doctor_dashboard.php'>Back to Doctor Dashboard</a>
 
     <form method="post" action="patient_management.php">
         <label>Search:</label>

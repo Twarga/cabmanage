@@ -80,5 +80,8 @@ $examens = $examen->read();
             </tr>
         <?php } ?>
     </table>
+
+    <br>
+    <a href="doctor_dashboard.php">Back to Doctor Dashboard</a>
 </body>
 </html>
