@@ -64,15 +64,24 @@ $notPaidCount = $facture->countByStatus('Non payé');
             margin: 0;
             padding: 0;
         }
+        .navbar .logo{
+            background-color: transparent;
+
+
+        }
         .navbar {
-            background-color: ;
+            background-color: transparent;
             padding: 1rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .navbar img {
-            max-height: 3rem;
+            width: 50px;
+            height: 50px;
+            background-color: transparent;
+            border-radius: 50%;
+            padding: 1rem;
         }
         .navbar a, .navbar span {
             color: #00F8FF;
@@ -129,11 +138,12 @@ $notPaidCount = $facture->countByStatus('Non payé');
         .table th {
             background-color: #044B53;
         }
-        .profile {
-            background-color: #088696;
+        .navbar .profile {
+            background-color: transparent;
             border-radius: 50%;
             padding: 1rem;
         }
+
         @media (max-width: 768px) {
             .columns {
                 flex-direction: column;
@@ -146,7 +156,7 @@ $notPaidCount = $facture->countByStatus('Non payé');
 </head>
 <body>
     <nav class="navbar">
-        <a href="doctor_dashboard.php"><img src="your-logo.png" alt="Logo"></a>
+        <a class="logo" href="doctor_dashboard.php"><img src="image/logo.png" alt="Logo"></a>
         <div style="flex-grow: 1; display: flex; justify-content: center;">
             <a href="patients.php">Patient</a>
             <a href="prelevement.php">Prélèvement</a>
@@ -154,8 +164,8 @@ $notPaidCount = $facture->countByStatus('Non payé');
             <a href="doctor_dashboard.php">Tableau de bord</a>
         </div>
         <div style="display: flex; align-items: center;">
-            <span class="profile"><img src="profile.png" alt="Profile" style="height: 2rem; width: 2rem; border-radius: 50%;"></span>
-            <a href="logout.php">Logout</a>
+            <span class="profile"><img src="image/user.png" alt="Profile" style="height: 2rem; width: 2rem; border-radius: 50%;"></span>
+            <span class="profile"><img src="image/logout.png" alt="logout" style="height: 2rem; width: 2rem; border-radius: 50%;"></span>
         </div>
     </nav>
     <section class="section">
