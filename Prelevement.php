@@ -72,6 +72,12 @@ class Prelevement {
         return $row['count'] > 0;
     }
 
+    public function readAll() {
+        $query = "SELECT * FROM " . $this->table_name;
+        $result = $this->conn->query($query);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
     // Update prelevement
     public function update() {
         $query = "UPDATE " . $this->table_name . " 
@@ -104,5 +110,13 @@ class Prelevement {
             return false;
         }
     }
+    public function countAll() {
+        $query = "SELECT COUNT(*) as total FROM " . $this->table_name;
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        return $row['total'];
+    }
+
 }
 ?>

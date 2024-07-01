@@ -1,34 +1,34 @@
 # Medical Cabin Management System Backend Development
 
 ## Module 1: Database Connection
-- [ ] Create a Configuration File
-  - [ ] Set up `config.php` with database connection details.
-  - [ ] Establish the database connection.
+- [x] Create a Configuration File
+  - [x] Set up `config.php` with database connection details.
+  - [x] Establish the database connection.
 
 ## Module 2: Authentication System
-- [ ] Create Authentication Model
-  - [ ] Implement user login and registration logic.
-- [ ] Create Login Page and Logic
-  - [ ] Create a simple HTML login form for testing.
-  - [ ] Validate user credentials and redirect to the appropriate dashboard.
-- [ ] Set Up Authorization Middleware
-  - [ ] Implement middleware to check user roles and restrict access to specific routes.
+- [x] Create Authentication Model
+  - [x] Implement user login and registration logic.
+- [x] Create Login Page and Logic
+  - [x] Create a simple HTML login form for testing.
+  - [x] Validate user credentials and redirect to the appropriate dashboard.
+- [x] Set Up Authorization Middleware
+  - [x] Implement middleware to check user roles and restrict access to specific routes.
 
 ## Module 3: User Management
-- [ ] Create User Model
-  - [ ] Define methods for creating, reading, updating, and deleting users.
-- [ ] Create User API
-  - [ ] Set up API endpoints for user operations.
-  - [ ] Create simple HTML forms to test user creation, reading, updating, and deletion.
+- [o] Create User Model
+  - [o] Define methods for creating, reading, updating, and deleting users.
+- [o] Create User API
+  - [o] Set up API endpoints for user operations.
+  - [o] Create simple HTML forms to test user creation, reading, updating, and deletion.
 
 ## Module 4: Patient Management
-- [ ] Create Patient Model
-  - [ ] Define methods for creating, reading, updating, and deleting patients.
-- [ ] Create Patient API
-  - [ ] Set up API endpoints for patient operations.
-  - [ ] Create simple HTML forms to test patient creation, reading, updating, and deletion.
-- [ ] Create Patient Pages
-  - [ ] Implement a basic patient profile page with full patient information.
+- [x] Create Patient Model
+  - [x] Define methods for creating, reading, updating, and deleting patients.
+- [x] Create Patient API
+  - [x] Set up API endpoints for patient operations.
+  - [x] Create simple HTML forms to test patient creation, reading, updating, and deletion.
+- [x] Create Patient Pages
+  - [x] Implement a basic patient profile page with full patient information.
 
 ## Module 5: Prélèvements Management
 - [ ] Create Prélèvement Model

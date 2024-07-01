@@ -1,6 +1,7 @@
 <?php
 class Patient {
     private $conn;
+    private $table_name = "patients"; // Define the table name
 
     public function __construct($db) {
         $this->conn = $db;
@@ -95,6 +96,52 @@ class Patient {
         }
         return $patients;
     }
+    public function countAll() {
+        $query = "SELECT COUNT(*) as total FROM " . $this->table_name;
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        return $row['total'];
+    }
+
+    public function fetchPatientDetails() {
+        $query = "
+        SELECT 
+            p.patient_id, p.name, p.prenom, 
+            (SELECT COUNT(*) FROM prelevements WHERE prelevements.patient_id = p.patient_id) as prelevements,
+            (SELECT SUM(total_prix) FROM factures f JOIN prelevements pl ON f.prelevement_id = pl.prelevement_id WHERE pl.patient_id = p.patient_id AND f.etat_paiement = 'Payé') as total_paid,
+            (SELECT SUM(rest) FROM factures f JOIN prelevements pl ON f.prelevement_id = pl.prelevement_id WHERE pl.patient_id = p.patient_id AND f.etat_paiement = 'Non payé') as unpaid_amount
+        FROM 
+            patients p";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function getPatientDetailsWithPrelevements() {
+        $query = "
+            SELECT 
+                p.patient_id,
+                p.name,
+                p.prenom,
+                COUNT(pr.prelevement_id) AS prelevement_count,
+                SUM(CASE WHEN f.etat_paiement = 'Payé' THEN f.montant_du ELSE 0 END) AS total_paid,
+                SUM(CASE WHEN f.etat_paiement = 'Non payé' THEN f.rest ELSE 0 END) AS total_unpaid
+            FROM 
+                " . $this->table_name . " p
+            LEFT JOIN 
+                prelevements pr ON p.patient_id = pr.patient_id
+            LEFT JOIN 
+                factures f ON pr.prelevement_id = f.prelevement_id
+            GROUP BY 
+                p.patient_id, p.name, p.prenom
+            ORDER BY 
+                p.patient_id DESC
+        ";
+        $result = $this->conn->query($query);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
     
     
 }

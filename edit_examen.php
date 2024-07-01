@@ -14,22 +14,28 @@ $examen = new Examen($db);
 // Get the examen ID from the URL
 $examen_id = isset($_GET['id']) ? $_GET['id'] : die('ERROR: Examen ID not found.');
 
-// Fetch examen data
-$examen_data = $examen->readOne($examen_id);
+// Handle form submission for updating the examen
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_examen'])) {
+    try {
+        // Set examen properties
+        $examen->examen_id = $examen_id;
+        $examen->sub_type = $_POST['sub_type'];
+        $examen->prelevement_number = $_POST['prelevement_number'];
+        $examen->prix = $_POST['prix'];
 
-// Handle form submission for updating an examen
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $examen->examen_id = $examen_id;
-    $examen->sub_type = $_POST['sub_type'];
-    $examen->prelevement_number = $_POST['prelevement_number'];
-    $examen->prix = $_POST['prix'];
-
-    if ($examen->update()) {
-        echo "Examen updated successfully.<br>";
-    } else {
-        echo "Error updating examen.<br>";
+        // Update examen
+        if ($examen->update()) {
+            echo "Examen updated successfully.<br>";
+        } else {
+            echo "Error updating examen.<br>";
+        }
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
     }
 }
+
+// Fetch the examen data
+$examen_data = $examen->readOne($examen_id);
 ?>
 
 <!DOCTYPE html>
@@ -46,9 +52,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label>Prelevement Number:</label>
         <input type="text" name="prelevement_number" value="<?php echo htmlspecialchars($examen_data['prelevement_number']); ?>" required><br>
         <label>Prix:</label>
-        <input type="number" name="prix" value="<?php echo htmlspecialchars($examen_data['prix']); ?>" required><br>
-        <button type="submit">Update</button>
+        <input type="number" step="0.01" name="prix" value="<?php echo htmlspecialchars($examen_data['prix']); ?>" required><br>
+        <button type="submit" name="update_examen">Update</button>
     </form>
+    <br>
     <a href="examen.php">Back to Examen Management</a>
 </body>
 </html>

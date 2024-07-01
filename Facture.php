@@ -13,6 +13,8 @@ class Facture {
     public $montant_du;
     public $rest;
     public $etat_paiement;
+    public $date_paiement;
+    public $date_creation;
 
     // Constructor with DB connection
     public function __construct($db) {
@@ -22,13 +24,10 @@ class Facture {
     // Create facture
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " 
-                  (examen_id, prelevement_id, total_prix, prix_reduit, avance, montant_du, rest, etat_paiement) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
+                  (examen_id, prelevement_id, total_prix, prix_reduit, avance, montant_du, rest, etat_paiement, date_paiement, date_creation) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($query);
-
-        // Bind values
-        $stmt->bind_param("iiddidds", $this->examen_id, $this->prelevement_id, $this->total_prix, $this->prix_reduit, $this->avance, $this->montant_du, $this->rest, $this->etat_paiement);
+        $stmt->bind_param("iiddiddsss", $this->examen_id, $this->prelevement_id, $this->total_prix, $this->prix_reduit, $this->avance, $this->montant_du, $this->rest, $this->etat_paiement, $this->date_paiement, $this->date_creation);
 
         if ($stmt->execute()) {
             return true;
@@ -38,6 +37,7 @@ class Facture {
         }
     }
 
+    // Read all factures
     // Read all factures
     public function read() {
         $query = "SELECT * FROM " . $this->table_name;
@@ -58,14 +58,11 @@ class Facture {
     // Update facture
     public function update() {
         $query = "UPDATE " . $this->table_name . " 
-                  SET examen_id = ?, prelevement_id = ?, total_prix = ?, prix_reduit = ?, avance = ?, montant_du = ?, rest = ?, etat_paiement = ? 
+                  SET examen_id = ?, prelevement_id = ?, total_prix = ?, prix_reduit = ?, avance = ?, montant_du = ?, rest = ?, etat_paiement = ?, date_paiement = ?, date_creation = ? 
                   WHERE facture_id = ?";
-    
         $stmt = $this->conn->prepare($query);
-    
-        // Bind values
-        $stmt->bind_param("iiddiddsi", $this->examen_id, $this->prelevement_id, $this->total_prix, $this->prix_reduit, $this->avance, $this->montant_du, $this->rest, $this->etat_paiement, $this->facture_id);
-    
+        $stmt->bind_param("iiddiddsssi", $this->examen_id, $this->prelevement_id, $this->total_prix, $this->prix_reduit, $this->avance, $this->montant_du, $this->rest, $this->etat_paiement, $this->date_paiement, $this->date_creation, $this->facture_id);
+
         if ($stmt->execute()) {
             return true;
         } else {
@@ -73,7 +70,6 @@ class Facture {
             return false;
         }
     }
-    
 
     // Delete facture
     public function delete($id) {
@@ -87,6 +83,7 @@ class Facture {
             return false;
         }
     }
+
     public function deleteByPrelevement($prelevement_id) {
         $query = "DELETE FROM factures WHERE prelevement_id = ?";
         $stmt = $this->conn->prepare($query);
@@ -96,6 +93,7 @@ class Facture {
         }
         return false;
     }
+
     public function deleteByExamenId($examen_id) {
         $query = "DELETE FROM " . $this->table_name . " WHERE examen_id = ?";
         $stmt = $this->conn->prepare($query);
@@ -103,5 +101,29 @@ class Facture {
         return $stmt->execute();
     }
 
+    public function countByStatus($status) {
+        $query = "SELECT COUNT(*) as total FROM " . $this->table_name . " WHERE etat_paiement = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("s", $status);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return $row['total'];
+    }
+
+    public function sumFullyPaidToday() {
+        $query = "SELECT SUM(prix_reduit + avance) as total FROM " . $this->table_name . " WHERE etat_paiement = 'Payé' AND DATE(date_creation) = CURDATE()";
+        $stmt = $this->conn->query($query);
+        $row = $stmt->fetch_assoc();
+        return $row['total'] ?? 0;
+    }
+    
+    public function sumUnpaidToday() {
+        $query = "SELECT SUM(rest) as total FROM " . $this->table_name . " WHERE etat_paiement IN ('Non payé', 'Partiellement payé') AND DATE(date_creation) = CURDATE()";
+        $stmt = $this->conn->query($query);
+        $row = $stmt->fetch_assoc();
+        return $row['total'] ?? 0;
+    }
+    
 }
 ?>

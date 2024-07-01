@@ -27,7 +27,7 @@ class Template {
     }
 
     public function create() {
-        $query = "INSERT INTO " . $this->table_name . " (name, content) VALUES (?, ?)";
+        $quwwery = "INSERT INTO " . $this->table_name . " (name, content) VALUES (?, ?)";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("ss", $this->name, $this->content);
         return $stmt->execute();

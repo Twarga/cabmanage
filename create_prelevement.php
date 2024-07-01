@@ -46,6 +46,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_prelevement']))
         $prelevement->rapport_txt = $_POST['rapport_txt'];
         $prelevement->examen_id = $_POST['examen_id'];
 
+        // Fetch the price of the selected examen
+        $selected_examen = $examen->readOne($prelevement->examen_id);
+        if (!$selected_examen) {
+            throw new Exception('Selected examen not found.');
+        }
+        $total_prix = $selected_examen['prix'];
+
         // Create prelevement
         if ($prelevement->create()) {
             // Check if facture already exists for this prelevement
@@ -54,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_prelevement']))
                 // Set facture properties
                 $facture->examen_id = $prelevement->examen_id;
                 $facture->prelevement_id = $prelevement->prelevement_id;
-                $facture->total_prix = 100.0 * $prelevement->examen_id; // Example calculation
+                $facture->total_prix = $total_prix;
                 $facture->prix_reduit = $_POST['prix_reduit'];
                 $facture->avance = $_POST['avance'];
                 $facture->montant_du = $facture->total_prix - $facture->prix_reduit - $facture->avance;
@@ -215,7 +222,10 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
             const examenId = $('#examen_id').val();
             const prixReduit = parseFloat($('#prix_reduit').val()) || 0;
             const avance = parseFloat($('#avance').val()) || 0;
-            const totalPrix = 100.0 * examenId; // Example calculation
+
+            // Fetch the selected examen price from the dropdown
+            const totalPrix = parseFloat($('.dropdown-search-content.examen a[data-id="' + examenId + '"]').data('prix'));
+
             const montantDu = totalPrix - prixReduit - avance;
             const rest = montantDu;
 
@@ -249,6 +259,7 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
 <body>
     <h2>Create Prelevement for <?php echo htmlspecialchars($patient_data['name'] . ' ' . $patient_data['prenom']); ?></h2>
     <form method="post" enctype="multipart/form-data" action="create_prelevement.php?patient_id=<?php echo $patient_id; ?>">
+        <a href="doctor_dashboard.php">back to Doctor Dashboard</a>
         <h3>Prelevement Information</h3>
         <label>Type Prelevement:</label>
         <select name="type_prelevement" required>
@@ -267,7 +278,7 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
             <input type="text" id="search_examen" placeholder="Search Examen">
             <div class="dropdown-search-content examen">
                 <?php foreach ($examens as $examen): ?>
-                    <a href="#" data-id="<?php echo htmlspecialchars($examen['examen_id']); ?>"><?php echo htmlspecialchars($examen['sub_type']); ?></a>
+                    <a href="#" data-id="<?php echo htmlspecialchars($examen['examen_id']); ?>" data-prix="<?php echo htmlspecialchars($examen['prix']); ?>"><?php echo htmlspecialchars($examen['sub_type']); ?></a>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -277,7 +288,7 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
         <label>Total Prix:</label><input type="text" id="total_prix" readonly><br>
         <label>Prix Reduit:</label><input type="number" id="prix_reduit" name="prix_reduit" onchange="updateFacture()" required><br>
         <label>Avance:</label><input type="number" id="avance" name="avance" onchange="updateFacture()" required><br>
-        <label>Montant Du:</label><input type="number" id="montant_du" name="montant_du" onchange="updateFacture()" required><br>
+        <label>Montant Du:</label><input type="number" id="montant_du" name="montant_du" readonly><br>
         <label>Rest:</label><input type="text" id="rest" readonly><br>
 
         <h3>Rapport</h3>

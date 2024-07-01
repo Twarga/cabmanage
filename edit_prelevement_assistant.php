@@ -7,11 +7,13 @@ ini_set('display_errors', 1);
 require_once 'config.php';
 require_once 'Prelevement.php';
 require_once 'Facture.php';
+require_once 'Examen.php'; // Include the Examen class
 
 // Initialize the classes
 $db = $link;
 $prelevement = new Prelevement($db);
 $facture = new Facture($db);
+$examen = new Examen($db); // Initialize the Examen class
 
 // Get the prelevement ID from the URL
 $prelevement_id = isset($_GET['id']) ? $_GET['id'] : die('ERROR: Prelevement ID not found.');
@@ -24,6 +26,9 @@ if (!$prelevement_data) {
 
 // Fetch facture data for the prelevement
 $facture_data = $facture->readOne($prelevement_id);
+
+// Fetch all examens
+$examens = $examen->read(); // Fetch all examens
 ?>
 
 <!DOCTYPE html>
@@ -32,12 +37,77 @@ $facture_data = $facture->readOne($prelevement_id);
     <meta charset="UTF-8">
     <title>Edit Prelevement</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .dropdown-search {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-search input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .dropdown-search-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 100%;
+            overflow: auto;
+            border: 1px solid #ddd;
+            z-index: 1;
+        }
+
+        .dropdown-search-content a {
+            color: black;
+            padding: 8px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-search a:hover {
+            background-color: #ddd;
+        }
+    </style>
     <script>
+        $(document).ready(function () {
+            $('#search_examen').on('keyup', function () {
+                var filter = $(this).val().toLowerCase();
+                $('.dropdown-search-content.examen a').each(function () {
+                    if ($(this).text().toLowerCase().indexOf(filter) > -1) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            $('#search_examen').on('focus', function () {
+                $('.dropdown-search-content.examen').show();
+            });
+
+            $('#search_examen').on('blur', function () {
+                setTimeout(function () {
+                    $('.dropdown-search-content.examen').hide();
+                }, 200);
+            });
+
+            $('.dropdown-search-content.examen a').on('click', function () {
+                $('#search_examen').val($(this).text());
+                $('#examen_id').val($(this).data('id'));
+                $('.dropdown-search-content.examen').hide();
+                updateFacture();
+            });
+        });
+
         function updateFacture() {
             const examenId = $('#examen_id').val();
             const prixReduit = parseFloat($('#prix_reduit').val()) || 0;
             const avance = parseFloat($('#avance').val()) || 0;
-            const totalPrix = 100.0 * examenId; // Example calculation
+
+            // Fetch the selected examen price from the dropdown
+            const totalPrix = parseFloat($('.dropdown-search-content.examen a[data-id="' + examenId + '"]').data('prix'));
+
             const montantDu = totalPrix - prixReduit - avance;
             const rest = montantDu;
 
@@ -69,13 +139,18 @@ $facture_data = $facture->readOne($prelevement_id);
         <label>Nombre de flacons:</label><input type="number" name="nombre_flacons" value="<?php echo htmlspecialchars($prelevement_data['nombre_flacons']); ?>" required><br>
         <label>Ordonnance:</label><input type="file" name="ordonnance"><br>
         <label>Docteur Exterieur:</label><input type="number" name="docteur_exterieur_id" value="<?php echo htmlspecialchars($prelevement_data['docteur_exterieur_id']); ?>" required><br>
-        <label>Examen:</label>
-        <select id="examen_id" name="examen_id" onchange="updateFacture()" required>
-            <option value="1" <?php if ($prelevement_data['examen_id'] == 1) echo 'selected'; ?>>Examen Type 1</option>
-            <option value="2" <?php if ($prelevement_data['examen_id'] == 2) echo 'selected'; ?>>Examen Type 2</option>
-            <option value="3" <?php if ($prelevement_data['examen_id'] == 3) echo 'selected'; ?>>Examen Type 3</option>
-        </select><br>
         
+        <label>Examen:</label>
+        <div class="dropdown-search">
+            <input type="text" id="search_examen" placeholder="Search Examen" value="<?php echo htmlspecialchars($prelevement_data['examen_id']); ?>">
+            <div class="dropdown-search-content examen">
+                <?php foreach ($examens as $examen): ?>
+                    <a href="#" data-id="<?php echo htmlspecialchars($examen['examen_id']); ?>" data-prix="<?php echo htmlspecialchars($examen['prix']); ?>"><?php echo htmlspecialchars($examen['sub_type']); ?></a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <input type="hidden" id="examen_id" name="examen_id" value="<?php echo htmlspecialchars($prelevement_data['examen_id']); ?>" required><br>
+
         <h3>Facture</h3>
         <label>Total Prix:</label><input type="text" id="total_prix" value="<?php echo htmlspecialchars($facture_data['total_prix']); ?>" readonly><br>
         <label>Prix Reduit:</label><input type="number" id="prix_reduit" name="prix_reduit" value="<?php echo htmlspecialchars($facture_data['prix_reduit']); ?>" onchange="updateFacture()" required><br>

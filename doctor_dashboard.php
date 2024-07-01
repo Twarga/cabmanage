@@ -14,6 +14,7 @@ if ($_SESSION['user_type'] !== 'Docteur') {
 <body>
     <h2>Doctor Dashboard</h2>
     <ul>
+        <li><a href='statistics.php'>Statistics</a></li>
         <li><a href="patient_management.php">Patient Management</a></li>
         <li><a href="prelevement_management.php">Prelevement Management</a></li>
         <li><a href="examen.php">Examen Management</a></li>
