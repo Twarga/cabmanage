@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen</title>
+    <link rel="stylesheet" href="examen.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="E:\Projetsliwi\imag\logo.png" type="image/x-icon">
+</head>
+<body>
+    <div class="container">
+        <button id="retour" onclick="window.history.back()">
+            <i class="retour-btn"><img src="E:\Projetsliwi\imag\left-arrow.png"></i>
+        </button>
+        <div class="examen-history">
+            <h2>Examen</h2>
+            <div class="examen-info">
+                <div class="info-left">
+                    <div class="form-group">
+                        <label for="SubType">Sub Type</label>
+                        <input type="text" id="SubType">
+                    </div>
+                    <div class="form-group">
+                        <label for="PreélèvmentNumber">Preélèvment Number</label>
+                        <input type="text" id="PreélèvmentNumber">
+                    </div>
+                    <div class="form-group">
+                        <label for="Prix">Prix</label>
+                        <input type="text" id="Prix">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="examen">
+            <h2>Examen List</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Sub Type</th>
+                        <th>Preélèvment Number</th>
+                        <th>Prix</th>
+                        <th>    </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Type A</td>
+                        <td>2023</td>
+                        <td>1230 DH</td>
+                        <td>
+                            <button class="print-btn"><img src="E:\Projetsliwi\imag\printer.png" alt="Print"></button>
+                            <button class="edit-btn"><img src="E:\Projetsliwi\imag\write.png" alt="Edit"></button>
+                            <button class="delete-btn"><img src="E:\Projetsliwi\imag\delete.png" alt="Delete"></button>
+                        </td>
+                    </tr>
+                    <!-- More rows can be added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
