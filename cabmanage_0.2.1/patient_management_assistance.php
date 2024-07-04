@@ -30,6 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['search_term'])) {
 <body>
     <h2>Patient Management</h2>
     <a href="create_patient.php">Create New Patient</a>
+    <a href="assistant_dashboard.php">Back</a>
 
     <form method="post" action="patient_management_assistance.php">
         <label>Search:</label>

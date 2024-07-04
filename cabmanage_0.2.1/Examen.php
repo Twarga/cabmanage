@@ -20,7 +20,7 @@ class Examen {
         $stmt = $this->conn->prepare($query);
 
         // Bind values
-        $stmt->bind_param("sid", $this->sub_type, $this->prelevement_number, $this->prix);
+        $stmt->bind_param("ssd", $this->sub_type, $this->prelevement_number, $this->prix);
 
         if ($stmt->execute()) {
             return true;
@@ -53,7 +53,7 @@ class Examen {
         $stmt = $this->conn->prepare($query);
 
         // Bind values
-        $stmt->bind_param("sidi", $this->sub_type, $this->prelevement_number, $this->prix, $this->examen_id);
+        $stmt->bind_param("ssdi", $this->sub_type, $this->prelevement_number, $this->prix, $this->examen_id);
 
         if ($stmt->execute()) {
             // Update related records

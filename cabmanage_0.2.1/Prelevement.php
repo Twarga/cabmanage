@@ -22,25 +22,20 @@ class Prelevement {
         $this->conn = $db;
     }
 
-    // Create prelevement
     public function create() {
-        $query = "INSERT INTO " . $this->table_name . " 
-                  (patient_id, type_prelevement, date_reception, date_creation, nombre_flacons, ordonnance, docteur_exterieur_id, rapport_template, rapport_txt, examen_id) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
+        $query = "INSERT INTO " . $this->table_name . " (patient_id, type_prelevement, date_reception, date_creation, nombre_flacons, ordonnance, docteur_exterieur_id, rapport_template, rapport_txt, examen_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($query);
-
-        // Bind values
-        $stmt->bind_param("issssbissi", $this->patient_id, $this->type_prelevement, $this->date_reception, $this->date_creation, $this->nombre_flacons, $this->ordonnance, $this->docteur_exterieur_id, $this->rapport_template, $this->rapport_txt, $this->examen_id);
-
+    
+        $stmt->bind_param("isssisssss", $this->patient_id, $this->type_prelevement, $this->date_reception, $this->date_creation, $this->nombre_flacons, $this->ordonnance, $this->docteur_exterieur_id, $this->rapport_template, $this->rapport_txt, $this->examen_id);
+    
         if ($stmt->execute()) {
-            $this->prelevement_id = $stmt->insert_id; // Assign the newly created prelevement ID
+            $this->prelevement_id = $this->conn->insert_id;
             return true;
         } else {
-            printf("Error: %s.\n", $stmt->error);
             return false;
         }
     }
+    
 
     // Update barcode
     public function updateBarcode($prelevement_id, $barcode_path) {

@@ -45,7 +45,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_prelevement']))
         $prelevement->date_reception = $_POST['date_reception'];
         $prelevement->date_creation = date('Y-m-d');
         $prelevement->nombre_flacons = $_POST['nombre_flacons'];
-        $prelevement->ordonnance = $_FILES['ordonnance']['tmp_name'] ? file_get_contents($_FILES['ordonnance']['tmp_name']) : null;
+
+        // Handle ordonnance upload
+        if ($_FILES['ordonnance']['tmp_name']) {
+            $ordonnance_directory = 'ordonnances/';
+            $ordonnance_filename = 'ordonnance_' . $patient_id . '_' . date('Ymd') . '.pdf';
+            $ordonnance_path = $ordonnance_directory . $ordonnance_filename;
+
+            if (!is_dir($ordonnance_directory)) {
+                mkdir($ordonnance_directory, 0777, true);
+            }
+
+            if (move_uploaded_file($_FILES['ordonnance']['tmp_name'], $ordonnance_path)) {
+                $prelevement->ordonnance = $ordonnance_path;
+            } else {
+                throw new Exception('Error uploading ordonnance.');
+            }
+        } else {
+            $prelevement->ordonnance = null;
+        }
 
         // Handle doctor input
         if (!empty($_POST['docteur_exterieur_id'])) {
