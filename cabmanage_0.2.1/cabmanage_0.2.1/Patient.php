@@ -49,8 +49,8 @@ class Patient {
 
     // Read a single patient by ID
     public function readOne($id) {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE patient_id = ?";
-        $stmt = $this->conn->prepare($query);
+        $sql = "SELECT * FROM patients WHERE patient_id = ?";
+        $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
