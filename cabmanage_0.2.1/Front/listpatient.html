@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient</title>
+    <link rel="stylesheet" href="listpatient.css">
+    <link rel="icon" href="E:\Projetsliwi\imag\logo.png" type="image/x-icon">
+</head>
+<body>
+    <div class="container">
+        <button id="retour" onclick="window.history.back()">
+            <i class="fas fa-arrow-left"><img src="E:\Projetsliwi\imag\left-arrow.png"></i>
+        </button>
+        <h1>Patient Liste</h1>
+        <div class="search-container">
+            <input type="text" placeholder="Cherche">
+            <button class="search-btn"><img src="E:\Projetsliwi\imag\searching.png" alt="Search"></button>
+            <button class="codbar-btn"><img src="E:\Projetsliwi\imag\barcode-scanner.png" alt="Search"></button> 
+            <button class="new-patient-btn"><img src="E:\Projetsliwi\imag\add.png" alt="New Patient"> Nouveau Patient</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Patient</th>
+                    <th>Sexe</th>
+                    <th>Date de naissance</th>
+                    <th>CIN</th>
+                    <th>Telephone</th>
+                    <th>Situation Familiale</th>
+                    <th>Assurance</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>John Doe</td>
+                    <td>Male</td>
+                    <td>01/01/1990</td>
+                    <td>A12345678</td>
+                    <td>0123456789</td>
+                    <td>Single</td>
+                    <td>Yes</td>
+                    <td>
+                        <button class="view-btn"><img src="E:\Projetsliwi\imag\view.png" alt="View"></button>
+                        <button class="edit-btn"><img src="E:\Projetsliwi\imag\write.png" alt="Edit"></button>
+                        <button class="delete-btn"><img src="E:\Projetsliwi\imag\delete.png" alt="Delete"></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>John Doe</td>
+                    <td>Male</td>
+                    <td>01/01/1990</td>
+                    <td>A12345678</td>
+                    <td>0123456789</td>
+                    <td>Single</td>
+                    <td>Yes</td>
+                    <td>
+                        <button class="view-btn"><img src="E:\Projetsliwi\imag\view.png" alt="View"></button>
+                        <button class="edit-btn"><img src="E:\Projetsliwi\imag\write.png" alt="Edit"></button>
+                        <button class="delete-btn"><img src="E:\Projetsliwi\imag\delete.png" alt="Delete"></button>
+                    </td>
+                </tr>
+                <!-- Add more rows as needed -->
+            </tbody>
+        </table>
+    </div>
+    <script src="listpatient.js"></script>
+</body>
+</html>

@@ -8,12 +8,14 @@ require_once 'config.php';
 require_once 'Prelevement.php';
 require_once 'Facture.php';
 require_once 'Examen.php'; // Include the Examen class
+require_once 'DocteurExterieur.php'; // Include the DocteurExterieur class
 
 // Initialize the classes
 $db = $link;
 $prelevement = new Prelevement($db);
 $facture = new Facture($db);
 $examen = new Examen($db); // Initialize the Examen class
+$docteurExterieur = new DocteurExterieur($db); // Initialize the DocteurExterieur class
 
 // Get the prelevement ID from the URL
 $prelevement_id = isset($_GET['id']) ? $_GET['id'] : die('ERROR: Prelevement ID not found.');
@@ -29,6 +31,9 @@ $facture_data = $facture->readOne($prelevement_id);
 
 // Fetch all examens
 $examens = $examen->read(); // Fetch all examens
+
+// Fetch all external doctors
+$docteurs_exterieurs = $docteurExterieur->readAll(); // Fetch all external doctors
 ?>
 
 <!DOCTYPE html>
@@ -71,6 +76,33 @@ $examens = $examen->read(); // Fetch all examens
     </style>
     <script>
         $(document).ready(function () {
+            $('#search_docteur_exterieur').on('keyup', function () {
+                var filter = $(this).val().toLowerCase();
+                $('.dropdown-search-content.docteur_exterieur a').each(function () {
+                    if ($(this).text().toLowerCase().indexOf(filter) > -1) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            $('#search_docteur_exterieur').on('focus', function () {
+                $('.dropdown-search-content.docteur_exterieur').show();
+            });
+
+            $('#search_docteur_exterieur').on('blur', function () {
+                setTimeout(function () {
+                    $('.dropdown-search-content.docteur_exterieur').hide();
+                }, 200);
+            });
+
+            $('.dropdown-search-content.docteur_exterieur a').on('click', function () {
+                $('#search_docteur_exterieur').val($(this).text());
+                $('#docteur_exterieur_id').val($(this).data('id'));
+                $('.dropdown-search-content.docteur_exterieur').hide();
+            });
+
             $('#search_examen').on('keyup', function () {
                 var filter = $(this).val().toLowerCase();
                 $('.dropdown-search-content.examen a').each(function () {
@@ -118,7 +150,7 @@ $examens = $examen->read(); // Fetch all examens
 
         function confirmDelete(prelevement_id) {
             if (confirm('Are you sure you want to delete this prelevement?')) {
-                window.location.href = 'delete_prelevement.php?id=' + prelevement_id;
+                window.location.href = 'delete_prelevement_assistant.php?id=' + prelevement_id;
             }
         }
     </script>
@@ -138,8 +170,18 @@ $examens = $examen->read(); // Fetch all examens
         <label>Date Creation:</label><input type="date" name="date_creation" value="<?php echo htmlspecialchars($prelevement_data['date_creation']); ?>" required><br>
         <label>Nombre de flacons:</label><input type="number" name="nombre_flacons" value="<?php echo htmlspecialchars($prelevement_data['nombre_flacons']); ?>" required><br>
         <label>Ordonnance:</label><input type="file" name="ordonnance"><br>
-        <label>Docteur Exterieur:</label><input type="number" name="docteur_exterieur_id" value="<?php echo htmlspecialchars($prelevement_data['docteur_exterieur_id']); ?>" required><br>
-        
+
+        <label>Docteur Exterieur:</label>
+        <div class="dropdown-search">
+            <input type="text" id="search_docteur_exterieur" name="search_docteur_exterieur" placeholder="Search Docteur Exterieur" value="<?php echo htmlspecialchars($prelevement_data['docteur_exterieur_id']); ?>">
+            <div class="dropdown-search-content docteur_exterieur">
+                <?php foreach ($docteurs_exterieurs as $docteur_exterieur): ?>
+                    <a href="#" data-id="<?php echo htmlspecialchars($docteur_exterieur['docteur_id']); ?>"><?php echo htmlspecialchars($docteur_exterieur['full_name']); ?></a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <input type="hidden" id="docteur_exterieur_id" name="docteur_exterieur_id" value="<?php echo htmlspecialchars($prelevement_data['docteur_exterieur_id']); ?>"><br>
+
         <label>Examen:</label>
         <div class="dropdown-search">
             <input type="text" id="search_examen" placeholder="Search Examen" value="<?php echo htmlspecialchars($prelevement_data['examen_id']); ?>">
@@ -152,16 +194,14 @@ $examens = $examen->read(); // Fetch all examens
         <input type="hidden" id="examen_id" name="examen_id" value="<?php echo htmlspecialchars($prelevement_data['examen_id']); ?>" required><br>
 
         <h3>Facture</h3>
-        <label>Total Prix:</label><input type="text" id="total_prix" value="<?php echo htmlspecialchars($facture_data['total_prix']); ?>" readonly><br>
+        <label>Total Prix:</label><input type="text" id="total_prix" name="total_prix" value="<?php echo htmlspecialchars($facture_data['total_prix']); ?>" readonly><br>
         <label>Prix Reduit:</label><input type="number" id="prix_reduit" name="prix_reduit" value="<?php echo htmlspecialchars($facture_data['prix_reduit']); ?>" onchange="updateFacture()" required><br>
         <label>Avance:</label><input type="number" id="avance" name="avance" value="<?php echo htmlspecialchars($facture_data['avance']); ?>" onchange="updateFacture()" required><br>
-        <label>Montant Du:</label><input type="text" id="montant_du" value="<?php echo htmlspecialchars($facture_data['montant_du']); ?>" readonly><br>
-        <label>Rest:</label><input type="text" id="rest" value="<?php echo htmlspecialchars($facture_data['rest']); ?>" readonly><br>
+        <label>Montant Du:</label><input type="text" id="montant_du" name="montant_du" value="<?php echo htmlspecialchars($facture_data['montant_du']); ?>" readonly><br>
+        <label>Rest:</label><input type="text" id="rest" name="rest" value="<?php echo htmlspecialchars($facture_data['rest']); ?>" readonly><br>
         
         <button type="submit" name="update_prelevement">Update</button>
-    </form>
-    <form method="get" action="create_prelevement_assistant.php">
-        <button type="submit">Back to Create Prelevement</button>
+        <a href="create_prelevement_assistant.php?patient_id=<?php echo $prelevement_data['patient_id']; ?>"><button type="button">Back to Create Prelevement</button></a>
     </form>
 </body>
 </html>

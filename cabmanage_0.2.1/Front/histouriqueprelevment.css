@@ -1,0 +1,209 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1F4D5A;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #088696;
+    border-radius: 10px;
+}
+
+#retour {
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    border-radius: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#retour i {
+    margin-right: 0px;
+}
+
+#retour img {
+    width: 30px;
+    height: 30px;
+    margin-right: 20px;
+}
+
+.prelevement {
+    padding: inherit;
+
+}
+
+.prelevement h2 {
+    text-align: center;
+}
+
+.prelevement-info {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.info-left {
+    width: 48%;
+}
+
+.info-right{
+    width: 48%;
+    display: math;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+}
+
+.form-group input {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    width: 97%;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+}
+
+.form-facture {
+    margin-bottom: 15px;
+}
+
+.form-fature label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-facture input {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    width: 97%;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    background-color: #03e8ff82;
+}
+
+.info-right h3 {
+    text-align: center;
+    color: #00E6FF;
+}
+
+.info-left h2{
+    text-align: center;
+    color: #00E6FF;
+}
+.historique-prelevement {
+    padding: 20px;
+}
+
+.historique-prelevement h2 {
+    text-align: center;
+}
+
+.historique-prelevement table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    color: #000;
+}
+
+.historique-prelevement th, .historique-prelevement td {
+    padding: 10px;
+    text-align: center;
+}
+
+.historique-prelevement th {
+    text-align: center;
+    background-color: #00B1FF;
+    color: rgb(14, 13, 13);
+}
+
+.print-btn, .edit-btn, .delete-btn {
+    padding: 5px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.print-btn img, .edit-btn img, .delete-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+#ajouter {
+    background-color: #00bfbf;
+    color: #fff;
+    border: none;
+    padding: 10px 50px;
+    cursor: pointer;
+    border-radius: 120px;
+    display: block;
+    margin: 10px auto;
+}
+
+#ajouter:hover {
+    background-color: #009f9f;
+}
+
+@media (max-width: 768px) {
+    .prelevement-info {
+        flex-direction: column;
+    }
+
+    .info-left, .info-right {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .form-group input, .form-group select {
+        width: 100%;
+        font-size: 14px;
+        padding: 6px;
+    }
+
+    .prelevement, .historique-prelevement {
+        padding: 10px;
+    }
+
+    #ajouter {
+        padding: 8px 40px;
+    }
+
+    #retour img {
+        width: 25px;
+        height: 25px;
+    }
+
+    .print-btn img, .edit-btn img, .delete-btn img {
+        width: 18px;
+        height: 18px;
+    }
+
+    .historique-prelevement th, .historique-prelevement td {
+        padding: 8px;
+        font-size: 14px;
+    }
+}

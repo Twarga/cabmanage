@@ -9,6 +9,7 @@ require_once 'Patient.php';
 require_once 'Prelevement.php';
 require_once 'Facture.php';
 require_once 'Examen.php'; // Include the Examen class
+require_once 'DocteurExterieur.php'; // Include the DocteurExterieur class
 
 // Initialize the classes
 $db = $link;
@@ -16,6 +17,7 @@ $patient = new Patient($db);
 $prelevement = new Prelevement($db);
 $facture = new Facture($db);
 $examen = new Examen($db); // Initialize the Examen class
+$docteurExterieur = new DocteurExterieur($db); // Initialize the DocteurExterieur class
 
 // Get the patient ID from the URL
 $patient_id = isset($_GET['patient_id']) ? $_GET['patient_id'] : die('ERROR: Patient ID not found.');
@@ -26,6 +28,9 @@ $patient_data = $patient->readOne($patient_id);
 // Fetch all examens
 $examens = $examen->read(); // Fetch all examens
 
+// Fetch all external doctors
+$docteurs_exterieurs = $docteurExterieur->readAll(); // Fetch all external doctors
+
 // Handle form submission for creating a prelevement
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_prelevement'])) {
     try {
@@ -35,8 +40,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_prelevement']))
         $prelevement->date_reception = $_POST['date_reception'];
         $prelevement->date_creation = date('Y-m-d');
         $prelevement->nombre_flacons = $_POST['nombre_flacons'];
-        $prelevement->ordonnance = $_FILES['ordonnance']['tmp_name'] ? file_get_contents($_FILES['ordonnance']['tmp_name']) : null;
-        $prelevement->docteur_exterieur_id = $_POST['docteur_exterieur_id'];
+
+        // Handle ordonnance upload
+        if ($_FILES['ordonnance']['tmp_name']) {
+            $ordonnance_directory = 'ordonnances/';
+            $ordonnance_filename = 'ordonnance_' . $patient_id . '_' . date('Ymd') . '.pdf';
+            $ordonnance_path = $ordonnance_directory . $ordonnance_filename;
+
+            if (!is_dir($ordonnance_directory)) {
+                mkdir($ordonnance_directory, 0777, true);
+            }
+
+            if (move_uploaded_file($_FILES['ordonnance']['tmp_name'], $ordonnance_path)) {
+                $prelevement->ordonnance = $ordonnance_path;
+            } else {
+                throw new Exception('Error uploading ordonnance.');
+            }
+        } else {
+            $prelevement->ordonnance = null;
+        }
+
+        // Handle doctor input
+        if (!empty($_POST['docteur_exterieur_id'])) {
+            // Existing doctor selected
+            $prelevement->docteur_exterieur_id = $_POST['docteur_exterieur_id'];
+        } else if (!empty($_POST['search_docteur_exterieur'])) {
+            // New doctor entered
+            $new_doctor_name = $_POST['search_docteur_exterieur'];
+            $new_doctor_id = $docteurExterieur->create($new_doctor_name);
+            if ($new_doctor_id) {
+                $prelevement->docteur_exterieur_id = $new_doctor_id;
+            } else {
+                throw new Exception('Error creating new external doctor.');
+            }
+        } else {
+            throw new Exception('External doctor information is required.');
+        }
+
         $prelevement->examen_id = $_POST['examen_id'];
 
         // Fetch the price of the selected examen
@@ -48,35 +88,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_prelevement']))
 
         // Create prelevement
         if ($prelevement->create()) {
-            // Check if facture already exists for this prelevement
-            $existing_facture = $facture->readOne($prelevement->prelevement_id);
-            if (!$existing_facture) {
-                // Set facture properties
-                $facture->examen_id = $prelevement->examen_id;
-                $facture->prelevement_id = $prelevement->prelevement_id;
-                $facture->total_prix = $total_prix;
-                $facture->prix_reduit = $_POST['prix_reduit'];
-                $facture->avance = $_POST['avance'];
-                $facture->montant_du = $facture->total_prix - $facture->prix_reduit - $facture->avance;
-                $facture->rest = $facture->montant_du;
+            // Set facture properties
+            $facture->examen_id = $prelevement->examen_id;
+            $facture->prelevement_id = $prelevement->prelevement_id;
+            $facture->total_prix = $total_prix;
+            $facture->prix_reduit = $_POST['prix_reduit'];
+            $facture->avance = $_POST['avance'];
+            $facture->montant_du = $facture->total_prix - $facture->prix_reduit - $facture->avance;
+            $facture->rest = $facture->montant_du;
+            $facture->date_creation = date('Y-m-d');
 
-                if ($facture->montant_du == 0) {
-                    $facture->etat_paiement = 'Payé';
-                } elseif ($facture->avance > 0) {
-                    $facture->etat_paiement = 'Partiellement payé';
-                } else {
-                    $facture->etat_paiement = 'Non payé';
-                }
+            if ($facture->montant_du == 0) {
+                $facture->etat_paiement = 'Payé';
+            } elseif ($facture->avance > 0) {
+                $facture->etat_paiement = 'Partiellement payé';
+            } else {
+                $facture->etat_paiement = 'Non payé';
+            }
 
-                // Create facture
-                if ($facture->create()) {
-                    echo "Prelevement and Facture created successfully for patient_id " . $prelevement->patient_id . ".<br>";
-                } else {
-                    echo "Error creating facture for prelevement_id " . $prelevement->prelevement_id . ".<br>";
-                }
+            // Create facture
+            if ($facture->create()) {
+                // Redirect to avoid form resubmission
+                header("Location: create_prelevement_assistant.php?patient_id={$patient_id}");
+                exit;
+            } else {
+                throw new Exception('Error creating facture.');
             }
         } else {
-            echo "Error creating prelevement for patient_id " . $prelevement->patient_id . ".<br>";
+            throw new Exception('Error creating prelevement.');
         }
     } catch (Exception $e) {
         echo "Error: " . $e->getMessage();
@@ -127,6 +166,33 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
     </style>
     <script>
         $(document).ready(function () {
+            $('#search_docteur_exterieur').on('keyup', function () {
+                var filter = $(this).val().toLowerCase();
+                $('.dropdown-search-content.docteur_exterieur a').each(function () {
+                    if ($(this).text().toLowerCase().indexOf(filter) > -1) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            $('#search_docteur_exterieur').on('focus', function () {
+                $('.dropdown-search-content.docteur_exterieur').show();
+            });
+
+            $('#search_docteur_exterieur').on('blur', function () {
+                setTimeout(function () {
+                    $('.dropdown-search-content.docteur_exterieur').hide();
+                }, 200);
+            });
+
+            $('.dropdown-search-content.docteur_exterieur a').on('click', function () {
+                $('#search_docteur_exterieur').val($(this).text());
+                $('#docteur_exterieur_id').val($(this).data('id'));
+                $('.dropdown-search-content.docteur_exterieur').hide();
+            });
+
             $('#search_examen').on('keyup', function () {
                 var filter = $(this).val().toLowerCase();
                 $('.dropdown-search-content.examen a').each(function () {
@@ -194,7 +260,17 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
         <label>Date Reception:</label><input type="date" name="date_reception" required><br>
         <label>Nombre de flacons:</label><input type="number" name="nombre_flacons" required><br>
         <label>Ordonnance:</label><input type="file" name="ordonnance"><br>
-        <label>Docteur Exterieur:</label><input type="number" name="docteur_exterieur_id" required><br>
+
+        <label>Docteur Exterieur:</label>
+        <div class="dropdown-search">
+            <input type="text" id="search_docteur_exterieur" name="search_docteur_exterieur" placeholder="Search Docteur Exterieur">
+            <div class="dropdown-search-content docteur_exterieur">
+                <?php foreach ($docteurs_exterieurs as $docteur_exterieur): ?>
+                    <a href="#" data-id="<?php echo htmlspecialchars($docteur_exterieur['docteur_id']); ?>"><?php echo htmlspecialchars($docteur_exterieur['full_name']); ?></a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <input type="hidden" id="docteur_exterieur_id" name="docteur_exterieur_id"><br>
 
         <label>Examen:</label>
         <div class="dropdown-search">
@@ -234,14 +310,16 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
             <th>Imprime</th>
         </tr>
         <?php foreach ($prelevements_history as $history): 
-            $facture_data = $facture->readOne($history['prelevement_id']); ?>
+            $facture_data = $facture->readOne($history['prelevement_id']);
+            $docteur_exterieur_data = $docteurExterieur->readOne($history['docteur_exterieur_id']);
+            ?>
             <tr>
                 <td><?php echo htmlspecialchars($history['prelevement_id']); ?></td>
                 <td><?php echo htmlspecialchars($history['type_prelevement']); ?></td>
                 <td><?php echo htmlspecialchars($history['date_reception']); ?></td>
                 <td><?php echo htmlspecialchars($history['date_creation']); ?></td>
                 <td><?php echo htmlspecialchars($history['nombre_flacons']); ?></td>
-                <td><?php echo htmlspecialchars($history['docteur_exterieur_id']); ?></td>
+                <td><?php echo htmlspecialchars($docteur_exterieur_data['full_name']); ?></td>
                 <td><?php echo htmlspecialchars($facture_data['etat_paiement'] ?? 'N/A'); ?></td>
                 <td><?php echo htmlspecialchars($facture_data['rest'] ?? 'N/A'); ?></td>
                 <td><?php echo $history['ordonnance'] ? '<a href="download_ordonance.php?id=' . $history['prelevement_id'] . '">Download</a>' : 'No Ordonnance'; ?></td>
