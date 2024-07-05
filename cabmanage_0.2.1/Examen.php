@@ -91,5 +91,20 @@ class Examen {
             return false;
         }
     }
+    // Fetch all exams by prelevement number
+    public function readAllByPrelevementNumber($prelevement_id) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE prelevement_number = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $prelevement_id); // Change to integer binding
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $examens = [];
+        while ($row = $result->fetch_assoc()) {
+            $examens[] = $row;
+        }
+        
+        return $examens;
+    }
 }
 ?>

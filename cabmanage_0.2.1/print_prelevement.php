@@ -9,6 +9,8 @@ require_once 'Prelevement.php';
 require_once 'Facture.php';
 require_once 'Template.php';
 require_once 'Patient.php';
+require_once 'DocteurExterieur.php'; // Ensure this file exists and is correctly named
+require_once 'Examen.php';
 
 // Initialize the classes
 $db = $link;
@@ -16,6 +18,8 @@ $prelevement = new Prelevement($db);
 $facture = new Facture($db);
 $template = new Template($db);
 $patient = new Patient($db);
+$docteur = new DocteurExterieur($db);
+$examen = new Examen($db);
 
 // Get the prelevement ID from the URL
 $prelevement_id = isset($_GET['id']) ? $_GET['id'] : die('ERROR: Prelevement ID not found.');
@@ -47,11 +51,14 @@ if (isset($prelevement_data['created_by'])) {
 // Fetch doctor data
 $doctor_name = 'N/A';
 if (isset($prelevement_data['docteur_exterieur_id'])) {
-    $doctor_data = $db->query("SELECT full_name FROM docteurs_exterieurs WHERE docteur_id = " . intval($prelevement_data['docteur_exterieur_id']))->fetch_assoc();
+    $doctor_data = $docteur->readOne($prelevement_data['docteur_exterieur_id']);
     if ($doctor_data) {
         $doctor_name = $doctor_data['full_name'];
     }
 }
+
+// Fetch exams data
+$examens_list = $examen->readAllByPrelevementNumber($prelevement_data['prelevement_id']);
 
 // Check if the facture is fully paid
 $canPrintRapport = isset($facture_data['etat_paiement']) && ($facture_data['etat_paiement'] == 'Payé');
@@ -95,7 +102,7 @@ $history = urlencode(getValue($patient_data, 'prelevement_history'));
 <body>
     <h2>Prelevement Details</h2>
     <button onclick="printSection('prelevement_template.php?patient_name=<?php echo $patient_name; ?>&patient_code=<?php echo $patient_code; ?>&date=<?php echo $date; ?>&reference=<?php echo $reference; ?>&doctor_name=<?php echo $doctor_name; ?>&total_price=<?php echo $total_price; ?>&advance=<?php echo $advance; ?>&balance=<?php echo $balance; ?>&created_by=<?php echo $created_by; ?>&age=<?php echo $age; ?>&telephone=<?php echo $telephone; ?>&prelevements=<?php echo $prelevements; ?>&num_flacons=<?php echo $num_flacons; ?>&complements=<?php echo $complements; ?>&history=<?php echo $history; ?>')">Print Prelevement Information</button>
-    <button onclick="printSection('facture_template.php?id=<?php echo $prelevement_id; ?>')">Print Facture</button>
+    <button onclick="printSection('facture_template.php?prelevement_id=<?php echo $prelevement_id; ?>&patient_name=<?php echo $patient_name; ?>&demande_number=<?php echo $reference; ?>&date_demande=<?php echo $date; ?>&doctor_name=<?php echo $doctor_name; ?>&date_facturation=<?php echo urlencode($facture_data['date_creation']); ?>&facture_id=<?php echo urlencode($facture_data['facture_id']); ?>&total_price=<?php echo $total_price; ?>&mode_reglement=Especé')">Print Facture</button>
     <?php if ($canPrintRapport): ?>
         <button onclick="printSection('rapport_template.php?id=<?php echo $prelevement_id; ?>')">Print Rapport</button>
     <?php else: ?>
