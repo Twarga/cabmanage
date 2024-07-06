@@ -36,22 +36,14 @@ body {
     margin-right: 20px;
 }
 
-
-
 .form-section {
     display: flex;
     justify-content: space-between;
     padding: 0px;
-
 }
 
-.left-form {
+.left-form, .right-form {
     width: 48%;
-}
-
-.right-form {
-    width: 48%;
-    display: math;
 }
 
 .form-group {
@@ -63,18 +55,8 @@ body {
     margin-bottom: 5px;
 }
 
-.form-group select {
+.form-group select, .form-group input {
     width: 100%;
-    padding: 8px;
-    border: none;
-    border-radius: 5px;
-}
-
-.form-group input {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    width: 97%;
     padding: 8px;
     border: none;
     border-radius: 5px;
@@ -100,12 +82,7 @@ body {
     background-color: #03e8ff82;
 }
 
-.right-form h2 {
-    text-align: center;
-    color: #00E6FF;
-}
-
-.left-form h2 {
+.right-form h2, .left-form h2 {
     text-align: center;
     color: #00E6FF;
 }

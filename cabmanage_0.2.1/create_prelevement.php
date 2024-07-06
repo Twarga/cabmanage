@@ -148,22 +148,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['save_template'])) {
 // Fetch prelevement history for the patient
 $prelevements_history = $prelevement->readByPatient($patient_id);
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Create Prelevement</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prélèvement</title>
+    <link rel="stylesheet" href="Front/prelevment.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="Front\imag\logo.png" type="image/x-icon">
     <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         .dropdown-search {
             position: relative;
             display: inline-block;
+            width: 100%;
         }
 
         .dropdown-search input[type="text"] {
             width: 100%;
+            padding: 8px;
             box-sizing: border-box;
         }
 
@@ -186,6 +191,16 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
 
         .dropdown-search a:hover {
             background-color: #ddd;
+        }
+
+        .action-buttons a {
+            margin: 0 5px;
+            color: #4ACCD1;
+            text-decoration: none;
+        }
+
+        .action-buttons a:hover {
+            color: #007BFF;
         }
     </style>
     <script>
@@ -323,106 +338,154 @@ $prelevements_history = $prelevement->readByPatient($patient_id);
     </script>
 </head>
 <body>
-    <h2>Create Prelevement for <?php echo htmlspecialchars($patient_data['name'] . ' ' . $patient_data['prenom']); ?></h2>
-    <form method="post" enctype="multipart/form-data" action="create_prelevement.php?patient_id=<?php echo $patient_id; ?>">
-        <a href="prelevement_management.php">back to Prelevment Managment</a>
-        <a href="doctor_dashboard.php">back to Doctor Dashboard</a>
-        <h3>Prelevement Information</h3>
-        <label>Type Prelevement:</label>
-        <select name="type_prelevement" required>
-            <option value="Biopsie">Biopsie</option>
-            <option value="Cytologie">Cytologie</option>
-            <option value="Pièce opératoire">Pièce opératoire</option>
-            <option value="Immuno Histochimique">Immuno Histochimique</option>
-        </select><br>
-        <label>Date Reception:</label><input type="date" name="date_reception" required><br>
-        <label>Nombre de flacons:</label><input type="number" name="nombre_flacons" required><br>
-        <label>Ordonnance:</label><input type="file" name="ordonnance"><br>
-
-        <label>Docteur Exterieur:</label>
-        <div class="dropdown-search">
-            <input type="text" id="search_docteur_exterieur" name="search_docteur_exterieur" placeholder="Search Docteur Exterieur">
-            <div class="dropdown-search-content docteur_exterieur">
-                <?php foreach ($docteurs_exterieurs as $docteur_exterieur): ?>
-                    <a href="#" data-id="<?php echo htmlspecialchars($docteur_exterieur['docteur_id']); ?>"><?php echo htmlspecialchars($docteur_exterieur['full_name']); ?></a>
-                <?php endforeach; ?>
+    <div class="container">
+        <button id="retour" onclick="window.history.back()">
+            <i class="retour-btn"><img src="Front\imag\left-arrow.png"></i>
+        </button>
+        <form method="post" enctype="multipart/form-data" action="create_prelevement.php?patient_id=<?php echo $patient_id; ?>">
+            <div class="form-section">
+                <div class="left-form">
+                    <h2>Prélèvement : <?php echo htmlspecialchars($patient_data['name'] . ' ' . $patient_data['prenom']); ?></h2>
+                    <div class="form-group">
+                        <label for="typePrelevement">Type Prélèvement</label>
+                        <select id="typePrelevement" name="type_prelevement" required>
+                            <option value="Biopsie">Biopsie</option>
+                            <option value="Cytologie">Cytologie</option>
+                            <option value="Pièce opératoire">Pièce opératoire</option>
+                            <option value="Immuno Histochimique">Immuno Histochimique</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dateReception">Date Réception</label>
+                        <input type="date" id="dateReception" name="date_reception" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dateReponse">Date Réponse</label>
+                        <input type="date" id="dateReponse">
+                    </div>
+                    <div class="form-group">
+                        <label for="nombreFlacon">Nombre de flacon</label>
+                        <input type="number" id="nombreFlacon" name="nombre_flacons" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pieceJointe">Ordonnance</label>
+                        <input type="file" id="pieceJointe" name="ordonnance">
+                    </div>
+                    <div class="form-group">
+                        <label for="medecin">Médecin</label>
+                        <div class="dropdown-search">
+                            <input type="text" id="search_docteur_exterieur" name="search_docteur_exterieur" placeholder="Search Docteur Exterieur">
+                            <div class="dropdown-search-content docteur_exterieur">
+                                <?php foreach ($docteurs_exterieurs as $docteur_exterieur): ?>
+                                    <a href="#" data-id="<?php echo htmlspecialchars($docteur_exterieur['docteur_id']); ?>"><?php echo htmlspecialchars($docteur_exterieur['full_name']); ?></a>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <input type="hidden" id="docteur_exterieur_id" name="docteur_exterieur_id">
+                    </div>
+                    <div class="form-group">
+                        <label for="examen">Examen</label>
+                        <div class="dropdown-search">
+                            <input type="text" id="search_examen" placeholder="Search Examen">
+                            <div class="dropdown-search-content examen">
+                                <?php foreach ($examens as $examen): ?>
+                                    <a href="#" data-id="<?php echo htmlspecialchars($examen['examen_id']); ?>" data-prix="<?php echo htmlspecialchars($examen['prix']); ?>"><?php echo htmlspecialchars($examen['sub_type']); ?></a>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <input type="hidden" id="examen_id" name="examen_id" required>
+                    </div>
+                </div>
+                <div class="right-form">
+                    <h2>Facturation</h2>
+                    <div class="form-facture">
+                        <label for="total_prix">Total Prix</label>
+                        <input type="text" id="total_prix" readonly>
+                    </div>
+                    <div class="form-facture">
+                        <label for="prix_reduit">Prix Réduit</label>
+                        <input type="number" id="prix_reduit" name="prix_reduit" onchange="updateFacture()" required>
+                    </div>
+                    <div class="form-facture">
+                        <label for="avance">Avance</label>
+                        <input type="number" id="avance" name="avance" onchange="updateFacture()" required>
+                    </div>
+                    <div class="form-facture">
+                        <label for="montant_du">Montant Du</label>
+                        <input type="text" id="montant_du" name="montant_du" readonly>
+                    </div>
+                    <div class="form-facture">
+                        <label for="rest">Reste</label>
+                        <input type="text" id="rest" readonly>
+                    </div>
+                </div>
             </div>
-        </div>
-        <input type="hidden" id="docteur_exterieur_id" name="docteur_exterieur_id"><br>
-
-        <label>Examen:</label>
-        <div class="dropdown-search">
-            <input type="text" id="search_examen" placeholder="Search Examen">
-            <div class="dropdown-search-content examen">
-                <?php foreach ($examens as $examen): ?>
-                    <a href="#" data-id="<?php echo htmlspecialchars($examen['examen_id']); ?>" data-prix="<?php echo htmlspecialchars($examen['prix']); ?>"><?php echo htmlspecialchars($examen['sub_type']); ?></a>
-                <?php endforeach; ?>
+            <div class="report-section">
+                <h2>Rapport</h2>
+                <div class="form-group">
+                    <label for="rapportTemplate">Rapport Template</label>
+                    <div class="dropdown-search">
+                        <input type="text" id="search_template" placeholder="Search Template">
+                        <div class="dropdown-search-content template">
+                            <?php foreach ($templates as $template): ?>
+                                <a href="#" data-id="<?php echo htmlspecialchars($template['template_id']); ?>"><?php echo htmlspecialchars($template['name']); ?></a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <input type="hidden" id="rapport_template" name="rapport_template">
+                </div>
+                <textarea name="rapport_txt" id="rapport_txt"></textarea>
+                <script>
+                    CKEDITOR.replace('rapport_txt');
+                </script>
+                <div class="report-buttons">
+                    <button type="submit" name="create_prelevement">Create</button>
+                    <button type="button" onclick="saveTemplate()">Enregistrer un modèle</button>
+                </div>
             </div>
+        </form>
+        <div class="history-section">
+            <h2>Historique de Prélèvement</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Date Réception</th>
+                        <th>Date Création</th>
+                        <th>N° de Flacons</th>
+                        <th>Docteur Extérieur</th>
+                        <th>État de paiement</th>
+                        <th>Reste</th>
+                        <th>Ordonnance</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($prelevements_history as $history):
+                        $facture_data = $facture->readOne($history['prelevement_id']);
+                        $docteur_exterieur_data = $docteurExterieur->readOne($history['docteur_exterieur_id']);
+                        ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($history['prelevement_id']); ?></td>
+                            <td><?php echo htmlspecialchars($history['type_prelevement']); ?></td>
+                            <td><?php echo htmlspecialchars($history['date_reception']); ?></td>
+                            <td><?php echo htmlspecialchars($history['date_creation']); ?></td>
+                            <td><?php echo htmlspecialchars($history['nombre_flacons']); ?></td>
+                            <td><?php echo htmlspecialchars($docteur_exterieur_data['full_name']); ?></td>
+                            <td><?php echo htmlspecialchars($facture_data['etat_paiement'] ?? 'N/A'); ?></td>
+                            <td><?php echo htmlspecialchars($facture_data['rest'] ?? 'N/A'); ?></td>
+                            <td><?php echo $history['ordonnance'] ? '<a href="download_ordonance.php?id=' . $history['prelevement_id'] . '">Download</a>' : 'No Ordonnance'; ?></td>
+                            <td class="action-buttons">
+                                <a href="edit_prelevement.php?id=<?php echo $history['prelevement_id']; ?>" title="Edit"><i class="fas fa-edit"></i></a>
+                                <a href="print_prelevement.php?id=<?php echo $history['prelevement_id']; ?>" title="Print"><i class="fas fa-print"></i></a>
+                                <a href="javascript:confirmDelete(<?php echo $history['prelevement_id']; ?>, <?php echo $patient_id; ?>)" title="Delete"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
-        <input type="hidden" id="examen_id" name="examen_id" required><br>
-
-        <h3>Facture</h3>
-        <label>Total Prix:</label><input type="text" id="total_prix" readonly><br>
-        <label>Prix Reduit:</label><input type="number" id="prix_reduit" name="prix_reduit" onchange="updateFacture()" required><br>
-        <label>Avance:</label><input type="number" id="avance" name="avance" onchange="updateFacture()" required><br>
-        <label>Montant Du:</label><input type="number" id="montant_du" name="montant_du" readonly><br>
-        <label>Rest:</label><input type="text" id="rest" readonly><br>
-
-        <h3>Rapport</h3>
-        <label>Rapport Template:</label>
-        <div class="dropdown-search">
-            <input type="text" id="search_template" placeholder="Search Template">
-            <div class="dropdown-search-content template">
-                <?php foreach ($templates as $template): ?>
-                    <a href="#" data-id="<?php echo htmlspecialchars($template['template_id']); ?>"><?php echo htmlspecialchars($template['name']); ?></a>
-                <?php endforeach; ?>
-            </div>
-        </div>
-        <input type="hidden" id="rapport_template" name="rapport_template"><br>
-        <textarea name="rapport_txt" id="rapport_txt"></textarea>
-        <script>
-            CKEDITOR.replace('rapport_txt');
-        </script>
-        <br>
-        <button type="submit" name="create_prelevement">Create</button>
-        <button type="button" onclick="saveTemplate()">Save as Template</button>
-    </form>
-
-    <h3>Prelevement History</h3>
-    <table border="1">
-        <tr>
-            <th>Prelevement ID</th>
-            <th>Type</th>
-            <th>Date Reception</th>
-            <th>Date Creation</th>
-            <th>Nombre de Flacons</th>
-            <th>Docteur Exterieur</th>
-            <th>Facture Etat</th>
-            <th>Rest</th>
-            <th>Ordonnance</th>
-            <th>Edit</th>
-            <th>Delete</th>
-            <th>Imprime</th>
-        </tr>
-        <?php foreach ($prelevements_history as $history):
-            $facture_data = $facture->readOne($history['prelevement_id']);
-            $docteur_exterieur_data = $docteurExterieur->readOne($history['docteur_exterieur_id']);
-            ?>
-            <tr>
-                <td><?php echo htmlspecialchars($history['prelevement_id']); ?></td>
-                <td><?php echo htmlspecialchars($history['type_prelevement']); ?></td>
-                <td><?php echo htmlspecialchars($history['date_reception']); ?></td>
-                <td><?php echo htmlspecialchars($history['date_creation']); ?></td>
-                <td><?php echo htmlspecialchars($history['nombre_flacons']); ?></td>
-                <td><?php echo htmlspecialchars($docteur_exterieur_data['full_name']); ?></td>
-                <td><?php echo htmlspecialchars($facture_data['etat_paiement'] ?? 'N/A'); ?></td>
-                <td><?php echo htmlspecialchars($facture_data['rest'] ?? 'N/A'); ?></td>
-                <td><?php echo $history['ordonnance'] ? '<a href="download_ordonance.php?id=' . $history['prelevement_id'] . '">Download</a>' : 'No Ordonnance'; ?></td>
-                <td><a href="edit_prelevement.php?id=<?php echo $history['prelevement_id']; ?>">Edit</a></td>
-                <td><a href="javascript:confirmDelete(<?php echo $history['prelevement_id']; ?>, <?php echo $patient_id; ?>)">Delete</a></td>
-                <td><a href="print_prelevement.php?id=<?php echo $history['prelevement_id']; ?>">Imprime</a></td>
-            </tr>
-        <?php endforeach; ?>
-    </table>
+    </div>
 </body>
 </html>

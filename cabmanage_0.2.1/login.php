@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
-    <link rel="stylesheet" href="login.css">
-    <link rel="icon" href="E:\Projetsliwi\imag\logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="Front/login.css">
+    <link rel="icon" href="Front/imag/logo.png" type="image/x-icon">
 </head>
 <body>
     <div class="login-container">
         <div class="login-header">
-            <img src="E:\Projetsliwi\imag\logo.png" alt="Logo" class="logo">
+            <img src="Front/imag/logo.png" alt="Logo" class="logo">
         </div>
         <form class="login-form" action="login.php" method="post">
             <input type="email" name="email" placeholder="connexion" class="input-field" required>
