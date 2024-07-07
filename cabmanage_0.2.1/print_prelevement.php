@@ -86,10 +86,73 @@ $history = urlencode(getValue($patient_data, 'prelevement_history'));
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Print Prelevement</title>
+    <title>Imprimer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #003D4D;
+        }
+
+        .container {
+            width: 60%;
+            max-width: 600px;
+            margin: auto;
+            padding: 40px;
+            background-color: #088696;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px; /* Add space between buttons */
+        }
+
+        .btn {
+            padding: 20px 40px;
+            border: none;
+            border-radius: 5px;
+            background: linear-gradient(to right, #003d4d, #00f8ff);
+            color: cornsilk;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%; /* Ensure buttons take full width */
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: linear-gradient(to right, #088696, #00F8FF);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 80%;
+                padding: 30px;
+            }
+            .btn {
+                padding: 15px 30px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+            .btn {
+                padding: 10px 20px;
+                font-size: 10px;
+            }
+        }
+    </style>
     <script>
         function printSection(url) {
             const printWindow = window.open(url, '_blank');
@@ -100,13 +163,14 @@ $history = urlencode(getValue($patient_data, 'prelevement_history'));
     </script>
 </head>
 <body>
-    <h2>Prelevement Details</h2>
-    <button onclick="printSection('prelevement_template.php?patient_name=<?php echo $patient_name; ?>&patient_code=<?php echo $patient_code; ?>&date=<?php echo $date; ?>&reference=<?php echo $reference; ?>&doctor_name=<?php echo $doctor_name; ?>&total_price=<?php echo $total_price; ?>&advance=<?php echo $advance; ?>&balance=<?php echo $balance; ?>&created_by=<?php echo $created_by; ?>&age=<?php echo $age; ?>&telephone=<?php echo $telephone; ?>&prelevements=<?php echo $prelevements; ?>&num_flacons=<?php echo $num_flacons; ?>&complements=<?php echo $complements; ?>&history=<?php echo $history; ?>')">Print Prelevement Information</button>
-    <button onclick="printSection('facture_template.php?prelevement_id=<?php echo $prelevement_id; ?>&patient_name=<?php echo $patient_name; ?>&demande_number=<?php echo $reference; ?>&date_demande=<?php echo $date; ?>&doctor_name=<?php echo $doctor_name; ?>&date_facturation=<?php echo urlencode($facture_data['date_creation']); ?>&facture_id=<?php echo urlencode($facture_data['facture_id']); ?>&total_price=<?php echo $total_price; ?>&mode_reglement=Especé')">Print Facture</button>
-    <?php if ($canPrintRapport): ?>
-        <button onclick="printSection('rapport_template.php?id=<?php echo $prelevement_id; ?>')">Print Rapport</button>
-    <?php else: ?>
-        <p>The rapport can only be printed if the facture is fully paid.</p>
-    <?php endif; ?>
+    <div class="container">
+        <button class="btn" onclick="printSection('prelevement_template.php?patient_name=<?php echo $patient_name; ?>&patient_code=<?php echo $patient_code; ?>&date=<?php echo $date; ?>&reference=<?php echo $reference; ?>&doctor_name=<?php echo $doctor_name; ?>&total_price=<?php echo $total_price; ?>&advance=<?php echo $advance; ?>&balance=<?php echo $balance; ?>&created_by=<?php echo $created_by; ?>&age=<?php echo $age; ?>&telephone=<?php echo $telephone; ?>&prelevements=<?php echo $prelevements; ?>&num_flacons=<?php echo $num_flacons; ?>&complements=<?php echo $complements; ?>&history=<?php echo $history; ?>')">Imprimer les Informations de Prélèvement</button>
+        <button class="btn" onclick="printSection('facture_template.php?prelevement_id=<?php echo $prelevement_id; ?>&patient_name=<?php echo $patient_name; ?>&demande_number=<?php echo $reference; ?>&date_demande=<?php echo $date; ?>&doctor_name=<?php echo $doctor_name; ?>&date_facturation=<?php echo urlencode($facture_data['date_creation']); ?>&facture_id=<?php echo urlencode($facture_data['facture_id']); ?>&total_price=<?php echo $total_price; ?>&mode_reglement=Especé')">Imprimer la Facture</button>
+        <?php if ($canPrintRapport): ?>
+            <button class="btn" onclick="printSection('rapport_template.php?id=<?php echo $prelevement_id; ?>')">Imprimer le Rapport</button>
+        <?php else: ?>
+            <p>Le rapport ne peut être imprimé que si la facture est entièrement payée.</p>
+        <?php endif; ?>
+    </div>
 </body>
 </html>

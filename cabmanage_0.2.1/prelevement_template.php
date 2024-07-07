@@ -8,12 +8,16 @@
         @media print {
             body {
                 margin: 0;
-                padding: 20px;
+                padding: 0;
+                font-size: 12px;
             }
             .container {
                 border: 1px solid #000;
-                padding: 20px;
+                padding: 10px;
                 page-break-after: always;
+                position: relative;
+                min-height: 100vh;
+                box-sizing: border-box;
             }
             .title {
                 text-align: center;
@@ -26,36 +30,36 @@
                 align-items: center;
                 border-top: 1px solid #000;
                 border-bottom: 1px solid #000;
-                padding: 10px 0;
+                padding: 5px 0;
             }
             .header div {
                 width: 48%;
             }
             .header div:first-child {
                 border-right: 1px solid #000;
-                padding-right: 10px;
+                padding-right: 5px;
             }
             .header div:last-child {
-                padding-left: 10px;
+                padding-left: 5px;
             }
             .section {
-                margin-top: 20px;
+                margin-top: 10px;
             }
             .section-title {
                 font-weight: bold;
                 border-bottom: 1px solid #000;
                 padding-bottom: 5px;
-                margin-bottom: 10px;
+                margin-bottom: 5px;
             }
             .barcode {
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                height: 50px;
-                margin-top: 20px;
+                height: 30px;
+                margin-top: 10px;
             }
             .section-content {
-                margin-top: 10px;
+                margin-top: 5px;
             }
             .table-container {
                 display: flex;
@@ -67,11 +71,11 @@
             table {
                 width: 100%;
                 border-collapse: collapse;
-                margin-top: 10px;
+                margin-top: 5px;
             }
             th, td {
                 border: 1px solid #000;
-                padding: 5px;
+                padding: 3px;
                 text-align: left;
             }
             .footer {
@@ -79,29 +83,35 @@
                 justify-content: space-between;
                 align-items: center;
                 border-top: 1px solid #000;
-                padding-top: 10px;
-                margin-top: 20px;
+                padding-top: 5px;
+                margin-top: 10px;
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                box-sizing: border-box;
             }
             .footer div {
                 width: 48%;
             }
             .footer div:first-child {
                 border-right: 1px solid #000;
-                padding-right: 10px;
+                padding-right: 5px;
             }
             .footer div:last-child {
-                padding-left: 10px;
+                padding-left: 5px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="title">Laboratoire d'anatomie et cytologie pathologique AL AMAL</div>
+        <div class="title">
+            <span style="font-weight: bold;">مخبر التشريح المرضى لتحليل الأنسجة والخلايا سلا</span><br>
+            <span style="font-weight: bold;">LABORATOIRE D’ANATOMIE ET DE CYTOLOGIE PATHOLOGIQUES DE SALÉ</span>
+        </div>
         <div class="header">
             <div>
                 <strong>Reçu à rapporter lors du retrait des résultats</strong><br>
-                <br>
                 Nom et Prénom: <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
                 Code Patient: <?php echo htmlspecialchars($_GET['patient_code']); ?><br>
                 Date: <?php echo htmlspecialchars($_GET['date']); ?><br>
@@ -116,7 +126,6 @@
             </div>
             <div>
                 <strong>CARTE DE DOSSIER</strong><br>
-                <br>
                 Nom et Prénom: <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
                 Code: <?php echo htmlspecialchars($_GET['patient_code']); ?><br>
                 <div class="barcode">
@@ -194,6 +203,13 @@
                     <img src="barcode-placeholder.png" alt="Barcode">
                 </div>
             </div>
+        </div>
+        <div class="footer-info">
+            <hr>
+            <p style="text-align: center;">
+                <strong>05 37 84 46 28 | centrepathologiesale@gmail.com</strong><br>
+                <strong>Résidence Saada 2, Bureau numéro 2, Avenue Benguerir, Bettana Salé</strong>
+            </p>
         </div>
     </div>
 </body>
