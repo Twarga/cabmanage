@@ -5,153 +5,196 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prelevement Paper</title>
     <style>
-        @media print {
-            body {
-                margin: 0;
-                padding: 0;
-                font-size: 12px;
-            }
-            .container {
-                border: 1px solid #000;
-                padding: 10px;
-                page-break-after: always;
-                position: relative;
-                min-height: 100vh;
-                box-sizing: border-box;
-            }
-            .title {
-                text-align: center;
-                font-weight: bold;
-                margin-bottom: 10px;
-            }
-            .header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-top: 1px solid #000;
-                border-bottom: 1px solid #000;
-                padding: 5px 0;
-            }
-            .header div {
-                width: 48%;
-            }
-            .header div:first-child {
-                border-right: 1px solid #000;
-                padding-right: 5px;
-            }
-            .header div:last-child {
-                padding-left: 5px;
-            }
-            .section {
-                margin-top: 10px;
-            }
-            .section-title {
-                font-weight: bold;
-                border-bottom: 1px solid #000;
-                padding-bottom: 5px;
-                margin-bottom: 5px;
-            }
-            .barcode {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 30px;
-                margin-top: 10px;
-            }
-            .section-content {
-                margin-top: 5px;
-            }
-            .table-container {
-                display: flex;
-                justify-content: space-between;
-            }
-            .table-container div {
-                width: 48%;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 5px;
-            }
-            th, td {
-                border: 1px solid #000;
-                padding: 3px;
-                text-align: left;
-            }
-            .footer {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-top: 1px solid #000;
-                padding-top: 5px;
-                margin-top: 10px;
-                position: absolute;
-                bottom: 0;
-                width: 100%;
-                box-sizing: border-box;
-            }
-            .footer div {
-                width: 48%;
-            }
-            .footer div:first-child {
-                border-right: 1px solid #000;
-                padding-right: 5px;
-            }
-            .footer div:last-child {
-                padding-left: 5px;
-            }
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+            -webkit-print-color-adjust: exact;
+        }
+        .container {
+            border: 1px solid #000;
+            padding: 5mm;
+            position: relative;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+        .header {
+            font-size: 20px;
+            text-align: center;
+            border-bottom: 1px solid #000;
+            padding: 5px 0;
+            margin-bottom: 5px;
+        }
+        .header span {
+            display: block;
+        }
+        .section {
+            margin-top: 5px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            padding-bottom: 3px;
+            margin-bottom: 3px;
+        }
+        .barcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 30px;
+            margin-top: 5px;
+        }
+        .barcode img {
+            width: 100px; /* Adjust the width to fit the space */
+            height: auto; /* Maintain aspect ratio */
+        }
+        .section-content {
+            margin-top: 3px;
+        }
+        .table-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .table-container div {
+            width: 48%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 3px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 2px;
+            text-align: left;
+        }
+        .tickets {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+        .ticket {
+            width: 19%;
+            border: 2px dashed #000;
+            padding: 3px;
+            text-align: center;
+        }
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #000;
+            padding-top: 3px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        .footer div {
+            width: 48%;
+        }
+        .footer div:first-child {
+            border-right: 1px solid #000;
+            padding-right: 5px;
+        }
+        .footer div:last-child {
+            padding-left: 5px;
+        }
+        .footer-info {
+            text-align: center;
+            font-size: 12px;
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+        }
+        .dotted {
+            border-top: 3px dashed;
+        }
+        .no-print {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="title">
-            <span style="font-weight: bold;">مخبر التشريح المرضى لتحليل الأنسجة والخلايا سلا</span><br>
-            <span style="font-weight: bold;">LABORATOIRE D’ANATOMIE ET DE CYTOLOGIE PATHOLOGIQUES DE SALÉ</span>
-        </div>
         <div class="header">
-            <div>
-                <strong>Reçu à rapporter lors du retrait des résultats</strong><br>
-                Nom et Prénom: <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
-                Code Patient: <?php echo htmlspecialchars($_GET['patient_code']); ?><br>
-                Date: <?php echo htmlspecialchars($_GET['date']); ?><br>
-                Référence: <?php echo htmlspecialchars($_GET['reference']); ?><br>
-                Médecin: <?php echo htmlspecialchars($_GET['doctor_name']); ?><br>
-                Net à payer: <?php echo htmlspecialchars($_GET['total_price']); ?> DH<br>
-                Avance: <?php echo htmlspecialchars($_GET['advance']); ?> DH<br>
-                Solde: <?php echo htmlspecialchars($_GET['balance']); ?> DH<br>
-                <div class="barcode">
-                    <img src="barcode-placeholder.png" alt="Barcode">
-                </div>
+            <span style="font-weight: bold;">مخبر التشريح المرضى لتحليل الأنسجة والخلايا سلا</span>
+            <span style="font-weight: bold;">LABORATOIRE D’ANATOMIE ET DE CYTOLOGIE PATHOLOGIQUES DE SALÉ</span>
+            <span style="font-weight: bold;">Dr. Lalla malika Maliki - د. لالة مليكة ملكي</span>
+
+        </div>
+        <div class="title">Reçu à rapporter lors du retrait des résultats</div>
+        <div class="section">
+            <table>
+                <tr>
+                    <td>Nom et Prénom: <?php echo htmlspecialchars($_GET['patient_name']); ?></td>
+                    <td>Code Patient: <?php echo htmlspecialchars($_GET['patient_code']); ?></td>
+                </tr>
+                <tr>
+                    <td>Médecin: <?php echo htmlspecialchars($_GET['doctor_name']); ?></td>
+                    <td>Référence: <?php echo htmlspecialchars($_GET['reference']); ?></td>
+                </tr>
+                <tr>
+                    <td>Date: <?php echo htmlspecialchars($_GET['date']); ?></td>
+                    <td>Date de Réception: <?php echo htmlspecialchars($_GET['date']); ?></td>
+                </tr>
+            </table>
+            <div class="barcode">
+                <img src="Front/imag/barcode.png" alt="Barcode">
             </div>
-            <div>
-                <strong>CARTE DE DOSSIER</strong><br>
-                Nom et Prénom: <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
-                Code: <?php echo htmlspecialchars($_GET['patient_code']); ?><br>
-                <div class="barcode">
-                    <img src="barcode-placeholder.png" alt="Barcode">
+        </div>
+        <hr class="dotted">
+        <div class="section">
+            <div class="section-title">Tickets</div>
+            <div class="tickets">
+                <div class="ticket">
+                    <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
+                    <?php echo htmlspecialchars($_GET['date']); ?>
+                </div>
+                <div class="ticket">
+                    <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
+                    <?php echo htmlspecialchars($_GET['date']); ?>
+                </div>
+                <div class="ticket">
+                    <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
+                    <?php echo htmlspecialchars($_GET['date']); ?>
+                </div>
+                <div class="ticket">
+                    <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
+                    <?php echo htmlspecialchars($_GET['date']); ?>
+                </div>
+                <div class="ticket">
+                    <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
+                    <?php echo htmlspecialchars($_GET['date']); ?>
                 </div>
             </div>
         </div>
         <div class="section">
             <div class="section-title">Facture</div>
-            <div class="section-content">
-                <table>
-                    <tr>
-                        <th>Net à payer</th>
-                        <th>Avance</th>
-                        <th>Solde</th>
-                    </tr>
-                    <tr>
-                        <td><?php echo htmlspecialchars($_GET['total_price']); ?> DH</td>
-                        <td><?php echo htmlspecialchars($_GET['advance']); ?> DH</td>
-                        <td><?php echo htmlspecialchars($_GET['balance']); ?> DH</td>
-                    </tr>
-                </table>
-            </div>
+            <table>
+                <tr>
+                    <th>Net à payer</th>
+                    <th>Avance</th>
+                    <th>Solde</th>
+                </tr>
+                <tr>
+                    <td><?php echo htmlspecialchars($_GET['total_price']); ?> DH</td>
+                    <td><?php echo htmlspecialchars($_GET['advance']); ?> DH</td>
+                    <td><?php echo htmlspecialchars($_GET['balance']); ?> DH</td>
+                </tr>
+            </table>
         </div>
         <div class="section">
-            <div class="section-title">Ordonnances</div>
             <div class="table-container">
                 <div>
                     <table>
@@ -193,20 +236,21 @@
         </div>
         <div class="footer">
             <div>
+                <strong>Ordonnances</strong>: <br>
                 <strong>Prélevements</strong>: <?php echo htmlspecialchars($_GET['prelevements']); ?><br>
                 <strong>Nombre de Flacons/lames</strong>: <?php echo htmlspecialchars($_GET['num_flacons']); ?><br>
-                <strong>Compléments</strong>: <?php echo htmlspecialchars($_GET['complements']); ?><br>
-                <strong>Historique</strong>: <?php echo htmlspecialchars($_GET['history']); ?>
+                <strong>Compléments</strong>:<br>
+                <strong>Historique</strong>:
             </div>
             <div>
                 <div class="barcode">
-                    <img src="barcode-placeholder.png" alt="Barcode">
+                    <img src="Front/imag/barcode.png" alt="Barcode">
                 </div>
             </div>
         </div>
         <div class="footer-info">
             <hr>
-            <p style="text-align: center;">
+            <p>
                 <strong>05 37 84 46 28 | centrepathologiesale@gmail.com</strong><br>
                 <strong>Résidence Saada 2, Bureau numéro 2, Avenue Benguerir, Bettana Salé</strong>
             </p>

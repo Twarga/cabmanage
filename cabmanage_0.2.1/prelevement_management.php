@@ -38,7 +38,7 @@ if (isset($_GET['search'])) {
                 <img src="Front/imag/logo.png" alt="Laboratory Logo" class="logo">
             </div>
             <div class="nav-buttons">
-                <button class="nav-button" onclick="location.href='doctor_dashboard.php'">Tableau de bord</button>
+                <button class="nav-button" onclick="location.href='statistics.php'">Tableau de bord</button>
                 <button class="nav-button" onclick="location.href='patient_management.php'">Patient</button>
                 <div class="user-section">
                     <img src="Front/imag/doc.jpeg" alt="User Icon" class="user-icon">

@@ -144,32 +144,32 @@ $total_price_in_words = convertNumberToWords($total_price);
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice</title>
+    <title>Facture</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align to the top */
+            align-items: flex-start;
             min-height: 100vh;
+            background-color: #f4f4f4;
         }
 
         .invoice {
             width: 21cm; /* A4 width */
             max-width: 100%;
-            padding: 2cm; /* Adding padding for print margins */
+            padding: 1cm; /* Adding padding for print margins */
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 5px;
             box-sizing: border-box;
-            margin-top: 2cm; /* Top margin */
+            margin-top: 7cm; /* Top margin */
         }
 
         h1, h2, h3, h4 {
@@ -179,7 +179,7 @@ $total_price_in_words = convertNumberToWords($total_price);
 
         h1 {
             font-size: 1.5em;
-            margin-bottom: 10px;
+            margin-bottom: 0px;
         }
 
         h2 {
@@ -188,7 +188,7 @@ $total_price_in_words = convertNumberToWords($total_price);
         }
 
         h3 {
-            font-size: 1em;
+            font-size: 1.5em;
             margin-bottom: 20px;
         }
 
@@ -219,11 +219,22 @@ $total_price_in_words = convertNumberToWords($total_price);
             margin-left: 20px;
         }
 
-        .barcode p {
+        .barcode img {
+            width: 100px; /* Adjust the width to fit the space */
+            height: auto; /* Maintain aspect ratio */
+        }
+        .footer-info {
             text-align: center;
-            margin-top: 30px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1.2em;
+            font-size: 12px;
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+        }
+        .dotted {
+            border-top: 3px  ;
+
+
         }
 
         @media print {
@@ -244,10 +255,7 @@ $total_price_in_words = convertNumberToWords($total_price);
 </head>
 <body>
     <div class="invoice">
-        <h1>LABORATOIRE D'ANATOMIE ET DE CYTOLOGIE PATHOLOGIQUE</h1>
-        <h2>SHIFA</h2>
-        <h3>Dr. Sanae CHAIBOUNI</h3>
-        <h4>FACTURE</h4>
+        <h3>FACTURE</h3>
         <p>REF : <?php echo htmlspecialchars($facture_id); ?></p>
         
         <div class="invoice-details">
@@ -278,7 +286,9 @@ $total_price_in_words = convertNumberToWords($total_price);
         <p><strong>MODE DE REGLEMENT : - <?php echo htmlspecialchars($mode_reglement); ?></strong></p>
 
         <div class="barcode">
-            <p>||||||||||||||||||||||||||</p>
+            <img src="Front/imag/barcode.png">
+        </div>
+        <div class="footer-info">
         </div>
     </div>
 </body>

@@ -66,6 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_prelevement']))
             $facture->avance = $_POST['avance'];
             $facture->montant_du = $facture->total_prix - $facture->prix_reduit - $facture->avance;
             $facture->rest = $facture->montant_du;
+            $facture->date_creation = $facture_data['date_creation'];
 
             if ($facture->montant_du == 0) {
                 $facture->etat_paiement = 'Payé';

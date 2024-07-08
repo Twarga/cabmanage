@@ -235,7 +235,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <button class="nav-button" onclick="location.href='doctor_dashboard.php'">Tableau de bord</button>
                 <button class="nav-button" onclick="location.href='patient_management.php'">Patient</button>
                 <div class="user-section">
-                    <img src="Front/imag/user.png" alt="User Icon" class="user-icon">
+                    <img src="Front/imag/doc.jpeg" alt="User Icon" class="user-icon">
                 </div>
                 <button class="nav-button" onclick="location.href='prelevement_management.php'">Prélèvement</button>
                 <button class="nav-button" onclick="location.href='examen.php'">Examen</button>

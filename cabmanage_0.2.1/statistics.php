@@ -52,51 +52,78 @@ $notPaidCount = $facture->countByStatus('Non payé');
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistics</title>
+    <link rel="stylesheet" href="Front/navbar.css">
+    <link rel="icon" href="Front/imag/logo.png" type="image/x-icon">
     <style>
         body {
-            background-color: #1F4D5A;
-            color: #FFF;
             font-family: Arial, sans-serif;
+            background-color: #1F4D5A;
+            color: #ffffff;
             margin: 0;
             padding: 0;
+            overflow: hidden; /* Hide the overall scrollbar */
         }
-        .navbar .logo{
-            background-color: transparent;
 
-
-        }
-        .navbar {
-            background-color: transparent;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .navbar img {
-            width: 50px;
-            height: 50px;
-            background-color: transparent;
-            border-radius: 50%;
-            padding: 1rem;
-        }
-        .navbar a, .navbar span {
-            color: #00F8FF;
-            text-decoration: none;
-            margin-left: 1rem;
-            padding: 0.5rem 1rem;
-            border-radius: 10px;
-            background-color: #055a6e;
-        }
-        .navbar a:hover, .navbar span:hover {
-            background-color: #044B53;
-        }
         .container {
-            padding: 1rem;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
         }
+
+        .content-area {
+            flex: 1;
+            width: 90%;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #088696;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        #retour {
+            border: none;
+            cursor: pointer;
+            background: transparent;
+            border-radius: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        #retour i {
+            margin-right: 0px;
+        }
+
+        #retour img {
+            width: 30px;
+            height: 30px;
+            margin-right: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between; /* Adjusted to move the title to the right */
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            text-align: left;
+            font-size: 24px;
+            color: #00E6FF;
+        }
+
         .stat-box {
             background-color: #088696;
             color: #FFF;
@@ -132,11 +159,13 @@ $notPaidCount = $facture->countByStatus('Non payé');
         }
         .table th, .table td {
             border: 1px solid #00F8FF;
+            
             padding: 0.5rem;
             text-align: left;
         }
         .table th {
-            background-color: #044B53;
+            background-color: #00E6FF;
+            color: #000;
         }
         .navbar .profile {
             background-color: transparent;
@@ -152,24 +181,33 @@ $notPaidCount = $facture->countByStatus('Non payé');
                 margin: 0.5rem 0;
             }
         }
+
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <a class="logo" href="doctor_dashboard.php"><img src="image/logo.png" alt="Logo"></a>
-        <div style="flex-grow: 1; display: flex; justify-content: center;">
-            <a href="patients.php">Patient</a>
-            <a href="prelevement.php">Prélèvement</a>
-            <a href="settings.php">Paramétrage</a>
-            <a href="doctor_dashboard.php">Tableau de bord</a>
+    <div class="container">
+        <div class="top-bar">
+            <div class="logo-section">
+                <img src="Front/imag/logo.png" alt="Laboratory Logo" class="logo">
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-button" onclick="location.href='statistics.php'">Tableau de bord</button>
+                <button class="nav-button" onclick="location.href='patient_management.php'">Patient</button>
+                <div class="user-section">
+                    <img src="Front/imag/doc.jpeg" alt="User Icon" class="user-icon">
+                </div>
+                <button class="nav-button" onclick="location.href='prelevement_management.php'">Prélèvement</button>
+                <button class="nav-button" onclick="location.href='examen.php'">Examen</button>
+            </div>
+            <div class="btn-logout">
+                <button class="btn-logout" onclick="location.href='logout.php'"><img src="Front/imag/logout.png" alt="Logout Button Icon"></button>
+            </div>            
         </div>
-        <div style="display: flex; align-items: center;">
-            <span class="profile"><img src="image/user.png" alt="Profile" style="height: 2rem; width: 2rem; border-radius: 50%;"></span>
-            <span class="profile"><img src="image/logout.png" alt="logout" style="height: 2rem; width: 2rem; border-radius: 50%;"></span>
-        </div>
-    </nav>
-    <section class="section">
-        <div class="container">
+        <div class="content-area">
+            <button id="retour" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"><img src="Front/imag/left-arrow.png"></i>
+            </button>
+            <h1>Statistiques</h1>
             <div class="columns">
                 <div class="stat-box">
                     <p class="title"><?php echo $totalPatients; ?></p>
@@ -235,6 +273,6 @@ $notPaidCount = $facture->countByStatus('Non payé');
                 </table>
             </div>
         </div>
-    </section>
+    </div>
 </body>
 </html>

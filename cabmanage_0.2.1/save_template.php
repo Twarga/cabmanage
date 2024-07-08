@@ -14,11 +14,13 @@ $template = new Template($db);
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $template->name = $_POST['template_name'];
     $template->content = $_POST['template_content'];
-    
+
     if ($template->create()) {
         echo "Template saved successfully.";
     } else {
         echo "Error saving template.";
     }
 }
+
+
 ?>

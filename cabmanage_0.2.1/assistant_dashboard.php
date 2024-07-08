@@ -6,16 +6,212 @@ if ($_SESSION['user_type'] !== 'Assistant') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assistant Dashboard</title>
+    <link rel="icon" href="Front/imag/logo.png" type="image/x-icon">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #1F4D5A;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background: transparent;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            max-width: 80px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .nav-button {
+            background-color: #B0E0E6;
+            color: #1F4D5A;
+            border: none;
+            padding: 10px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        .nav-button:hover {
+            background-color: #088696;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 20px; /* Adjust margin as needed */
+        }
+
+        .btn-logout button {
+            background-color: transparent; /* Make button background transparent */
+            border: none; /* Remove border */
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .btn-logout img {
+            width: 40px; /* Set the width of the logout icon */
+            height: 40px; /* Set the height of the logout icon */
+            border-radius: 50%; /* Make the icon circular if needed */
+            transition: transform 0.3s; /* Add transition for hover effect */
+        }
+
+        .btn-logout img:hover {
+            transform: scale(1.1); /* Scale up the icon slightly on hover */
+        }
+
+        .content-area {
+            flex: 1;
+            width: 90%;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #088696;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+            }
+
+            .content-area {
+                width: 95%;
+            }
+
+            .logo {
+                max-width: 60px;
+            }
+
+            .btn-logout img {
+                width: 30px;
+                height: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav-buttons {
+                width: 100%;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav-button {
+                width: 100%;
+                padding: 10px 20px;
+            }
+
+            .user-section {
+                width: 100%;
+                justify-content: flex-start;
+                margin-top: 10px;
+            }
+
+            .btn-logout {
+                margin-top: 10px;
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .btn-logout img {
+                width: 25px;
+                height: 25px;
+            }
+
+            .content-area {
+                width: 100%;
+                padding: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>Assistant Dashboard</h2>
-    <li><a href="statistics.php">Statistics</a></li>
-    <li><a href="patient_management_assistance.php">Patient Management</a></li>
-    <li><a href="prelevement_management_assistant.php">Prelevement Management</a></li>
-    <li><a href="logout.php">Logout</a></li>
+    <div class="container">
+        <div class="top-bar">
+            <div class="logo-section">
+                <img src="Front/imag/logo.png" alt="Laboratory Logo" class="logo">
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-button" onclick="location.href='statistics_assistance.php'">Tableau de bord</button>
+                <button class="nav-button" onclick="location.href='patient_management_assistance.php'">Patient</button>
+                <div class="user-section">
+                    <img src="Front/imag/inf.jpeg" alt="User Icon" class="user-icon">
+                </div>
+                <button class="nav-button" onclick="location.href='prelevement_management_assistant.php'">Prélèvement</button>
+                <button class="nav-button" onclick="location.href='assitance_dashboard.php'">Examen</button>
+            </div>
+            <div class="btn-logout">
+                <button class="btn-logout" onclick="location.href='logout.php'"><img src="Front/imag/logout.png" alt="Logout Button Icon"></button>
+            </div>            
+        </div>
+        <div class="content-area">
+            <!-- Content for assistant dashboard goes here -->
+        </div>
+    </div>
 </body>
 </html>
