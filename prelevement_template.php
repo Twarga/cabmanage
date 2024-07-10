@@ -131,7 +131,6 @@
             <span style="font-weight: bold;">مخبر التشريح المرضى لتحليل الأنسجة والخلايا سلا</span>
             <span style="font-weight: bold;">LABORATOIRE D’ANATOMIE ET DE CYTOLOGIE PATHOLOGIQUES DE SALÉ</span>
             <span style="font-weight: bold;">Dr. Lalla malika Maliki - د. لالة مليكة ملكي</span>
-
         </div>
         <div class="title">Reçu à rapporter lors du retrait des résultats</div>
         <div class="section">
@@ -158,25 +157,61 @@
             <div class="section-title">Tickets</div>
             <div class="tickets">
                 <div class="ticket">
+                    <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
                     <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
                     <?php echo htmlspecialchars($_GET['date']); ?>
                 </div>
                 <div class="ticket">
+                    <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
                     <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
                     <?php echo htmlspecialchars($_GET['date']); ?>
                 </div>
                 <div class="ticket">
+                    <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
                     <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
                     <?php echo htmlspecialchars($_GET['date']); ?>
                 </div>
                 <div class="ticket">
+                    <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
                     <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
                     <?php echo htmlspecialchars($_GET['date']); ?>
                 </div>
                 <div class="ticket">
+                    <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
                     <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
                     <?php echo htmlspecialchars($_GET['date']); ?>
                 </div>
+                
+            </div>
+            <div class="section">
+            <div class="section-title"></div>
+            <div class="tickets">
+                <div class="ticket">
+                    <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
+                    <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
+                    <?php echo htmlspecialchars($_GET['date']); ?>
+                </div>
+                <div class="ticket">
+                    <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
+                    <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
+                    <?php echo htmlspecialchars($_GET['date']); ?>
+                </div>
+                <div class="ticket">
+                    <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
+                    <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
+                    <?php echo htmlspecialchars($_GET['date']); ?>
+                </div>
+                <div class="ticket">
+                    <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
+                    <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
+                    <?php echo htmlspecialchars($_GET['date']); ?>
+                </div>
+                <div class="ticket">
+                    <?php echo htmlspecialchars($_GET['patient_name']); ?><br>
+                    <strong>C-<?php echo htmlspecialchars($_GET['patient_code']); ?>-P<?php echo htmlspecialchars($_GET['reference']); ?></strong><br>
+                    <?php echo htmlspecialchars($_GET['date']); ?>
+                </div>
+                
             </div>
         </div>
         <div class="section">
@@ -252,7 +287,8 @@
             <hr>
             <p>
                 <strong>05 37 84 46 28 | centrepathologiesale@gmail.com</strong><br>
-                <strong>Résidence Saada 2, Bureau numéro 2, Avenue Benguerir, Bettana Salé</strong>
+                <strong>Adresse</strong>: 13, RUE NADOR, HAY ESSALAM, SALE<br>
+                <strong>Heures de Travail</strong>: Lundi au Vendredi de 08:30 à 18:00, Samedi de 08:30 à 12:00
             </p>
         </div>
     </div>

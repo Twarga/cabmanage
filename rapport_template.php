@@ -75,19 +75,14 @@ error_reporting(E_ALL);
 
 // Create instance of TCPDF class
 class PDF extends TCPDF {
+    // We will manage header and footer manually, so we override these methods
     function Header() {
-        // Placeholder for header content
-        $this->SetFont('dejavusans', 'I', 12);
-        $this->Cell(0, 10, 'Header Placeholder', 0, 1, 'C');
-        $this->Ln(10); // Add some space after header
+        // No header
     }
 
     function Footer() {
-        // Placeholder for "Edité le" and "Signé" section
-        $this->SetY(-45); // Position at 15 mm from bottom
-        $this->SetFont('dejavusans', '', 12);
-        $this->Cell(0, 10, 'Edité le : ' . date('Y-m-d'), 0, 0, 'L');
-        $this->Cell(0, 10, 'Signé : Dr. Maliki Malika Lalla', 0, 0, 'R');
+        // Reserve space for the footer (e.g., page numbers) but do not print page numbers
+        $this->SetY(-20); // Reserve space for footer
     }
 }
 
@@ -118,23 +113,24 @@ $pdf->Cell(0, 10, 'COMPTE RENDU ANATOMO-PATHOLOGIQUE', 0, 1, 'C');
 // Print the report text
 $pdf->SetFont('dejavusans', '', 12);
 $pdf->SetXY(10, 110);
-$pdf->MultiCell(0, 10, $rapport_txt);
+$pdf->MultiCell(0, 10, $rapport_txt, 0, 'L', 0, 1, '', '', true, 0, false, true, 0, 'T');
 
-// Check if there is enough space for footer, otherwise add a new page
-if ($pdf->GetY() + 20 > $pdf->getPageHeight()) { // Adjust the 20 based on the footer size
+// Check if there is enough space for the "Edité le" and "Signé" section
+$footerHeight = 20; // Approximate height of the "Edité le" and "Signé" section
+$currentY = $pdf->GetY();
+$pageHeight = $pdf->getPageHeight();
+$remainingSpace = $pageHeight - $currentY - $pdf->getBreakMargin() - $footerHeight - 30; // -30 for the reserved footer space
+
+// If not enough space, add a new page
+if ($remainingSpace < $footerHeight) {
     $pdf->AddPage();
 }
 
-// Add the footer based on the page number
-$page_num = $pdf->getNumPages();
-if ($page_num == 1) {
-    // First page, adjust position for footer
-    $pdf->SetY(-40);
-} else {
-    // Other pages, footer at the bottom
-    $pdf->SetY(-40);
-}
+// Print the "Edité le" and "Signé" section with spacing
+$pdf->SetY($pdf->GetY() + 80); // Add some space before the section
+$pdf->SetFont('dejavusans', '', 12);
+$pdf->Cell(0, 10, 'Edité le : ' . date('Y-m-d') . '                                                 Signé : Dr. Maliki Malika Lalla', 0, 1, 'L');
 
-// Output the PDF inline
-$pdf->Output('rapport.pdf', 'I'); // Corrected parameters: (filename, destination)
+// Output the PDF
+$pdf->Output('rapport.pdf', 'I');
 ?>

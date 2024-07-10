@@ -1,116 +1,81 @@
 <?php
-session_start();
-if ($_SESSION['user_type'] !== 'Assistant') {
-    header("Location: login.php");
-    exit;
+// Enable error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Include the necessary files
+require_once 'config.php';
+require_once 'Patient.php';
+require_once 'Prelevement.php';
+require_once 'Facture.php';
+
+// Initialize the classes
+$db = $link;
+$patient = new Patient($db);
+$prelevement = new Prelevement($db);
+$facture = new Facture($db);
+
+// Fetch all patients
+$patients = $patient->read();
+if (!$patients) {
+    echo "No patients found.<br>";
 }
+
+// Fetch all factures for today
+$date_today = date('Y-m-d');
+$factures_today_query = "SELECT * FROM factures WHERE DATE(date_creation) = '$date_today' OR DATE(date_modification) = '$date_today'";
+$factures_today_result = $db->query($factures_today_query);
+
+$totalMoneyToday = 0;
+$totalUnpaidToday = 0;
+
+if ($factures_today_result) {
+    while ($facture_data = $factures_today_result->fetch_assoc()) {
+        $totalMoneyToday += $facture_data['prix_reduit'] + $facture_data['avance'];
+        $totalUnpaidToday += $facture_data['rest'];
+    }
+} else {
+    echo "Error fetching today's factures: " . $db->error;
+}
+
+// Count total patients
+$totalPatients = count($patients);
+
+// Count total prelevements
+$totalPrelevements = $prelevement->countAll();
+
+// Count facture/prelevement status
+$fullyPaidCount = $facture->countByStatus('Payé');
+$partiallyPaidCount = $facture->countByStatus('Partiellement payé');
+$notPaidCount = $facture->countByStatus('Non payé');
+
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistant Dashboard</title>
+    <title>Statistics</title>
+    <link rel="stylesheet" href="Front/navbar.css">
     <link rel="icon" href="Front/imag/logo.png" type="image/x-icon">
     <style>
-        * {
-            box-sizing: border-box;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1F4D5A;
+            color: #ffffff;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: #1F4D5A;
-            background-size: cover;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            overflow: hidden; /* Hide the overall scrollbar */
         }
 
         .container {
+            width: 100%;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .top-bar {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 20px;
-            background: transparent;
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-        }
-
-        .logo {
-            max-width: 80px;
-        }
-
-        .nav-buttons {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        .nav-button {
-            background-color: #B0E0E6;
-            color: #1F4D5A;
-            border: none;
-            padding: 10px 40px;
-            border-radius: 50px;
-            cursor: pointer;
-        }
-
-        .nav-button:hover {
-            background-color: #088696;
-        }
-
-        .user-section {
-            display: flex;
-            align-items: center;
-        }
-
-        .user-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-left: 10px;
-        }
-
-        .btn-logout {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 20px; /* Adjust margin as needed */
-        }
-
-        .btn-logout button {
-            background-color: transparent; /* Make button background transparent */
-            border: none; /* Remove border */
-            cursor: pointer;
-            padding: 0;
-        }
-
-        .btn-logout img {
-            width: 40px; /* Set the width of the logout icon */
-            height: 40px; /* Set the height of the logout icon */
-            border-radius: 50%; /* Make the icon circular if needed */
-            transition: transform 0.3s; /* Add transition for hover effect */
-        }
-
-        .btn-logout img:hover {
-            transform: scale(1.1); /* Scale up the icon slightly on hover */
+            justify-content: flex-start;
         }
 
         .content-area {
@@ -125,69 +90,98 @@ if ($_SESSION['user_type'] !== 'Assistant') {
             text-align: center;
         }
 
+        #retour {
+            border: none;
+            cursor: pointer;
+            background: transparent;
+            border-radius: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        #retour i {
+            margin-right: 0px;
+        }
+
+        #retour img {
+            width: 30px;
+            height: 30px;
+            margin-right: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between; /* Adjusted to move the title to the right */
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            text-align: left;
+            font-size: 24px;
+            color: #00E6FF;
+        }
+
+        .stat-box {
+            background-color: #088696;
+            color: #FFF;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1rem;
+            flex: 1;
+            margin: 0.5rem;
+        }
+        .stat-box .title {
+            color: #00F8FF;
+            font-size: 2rem;
+        }
+        .stat-box .subtitle {
+            color: #FFF;
+            font-size: 1rem;
+        }
+        .columns {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .table-container {
+            margin-top: 2rem;
+            overflow-x: auto;
+        }
+        .table {
+            width: 100%;
+            background-color: #088696;
+            color: #FFF;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            border: 1px solid #00F8FF;
+            
+            padding: 0.5rem;
+            text-align: left;
+        }
+        .table th {
+            background-color: #00E6FF;
+            color: #000;
+        }
+        .navbar .profile {
+            background-color: transparent;
+            border-radius: 50%;
+            padding: 1rem;
+        }
+
         @media (max-width: 768px) {
-            .nav-buttons {
+            .columns {
                 flex-direction: column;
-                gap: 10px;
             }
-
-            .nav-button {
-                padding: 10px 20px;
-            }
-
-            .content-area {
-                width: 95%;
-            }
-
-            .logo {
-                max-width: 60px;
-            }
-
-            .btn-logout img {
-                width: 30px;
-                height: 30px;
+            .stat-box {
+                margin: 0.5rem 0;
             }
         }
 
-        @media (max-width: 480px) {
-            .top-bar {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .nav-buttons {
-                width: 100%;
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .nav-button {
-                width: 100%;
-                padding: 10px 20px;
-            }
-
-            .user-section {
-                width: 100%;
-                justify-content: flex-start;
-                margin-top: 10px;
-            }
-
-            .btn-logout {
-                margin-top: 10px;
-                width: 100%;
-                justify-content: flex-start;
-            }
-
-            .btn-logout img {
-                width: 25px;
-                height: 25px;
-            }
-
-            .content-area {
-                width: 100%;
-                padding: 10px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -203,14 +197,81 @@ if ($_SESSION['user_type'] !== 'Assistant') {
                     <img src="Front/imag/inf.jpeg" alt="User Icon" class="user-icon">
                 </div>
                 <button class="nav-button" onclick="location.href='prelevement_management_assistant.php'">Prélèvement</button>
-                <button class="nav-button" onclick="location.href='assitance_dashboard.php'">Examen</button>
+                <button class="nav-button" onclick="location.href='examen.php'">Examen</button>
             </div>
             <div class="btn-logout">
                 <button class="btn-logout" onclick="location.href='logout.php'"><img src="Front/imag/logout.png" alt="Logout Button Icon"></button>
             </div>            
         </div>
         <div class="content-area">
-            <!-- Content for assistant dashboard goes here -->
+            <button id="retour" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"><img src="Front/imag/left-arrow.png"></i>
+            </button>
+            <h1>Statistiques</h1>
+            <div class="columns">
+                <div class="stat-box">
+                    <p class="title"><?php echo $totalPatients; ?></p>
+                    <p class="subtitle">Total Patient</p>
+                </div>
+                <div class="stat-box">
+                    <p class="title"><?php echo $totalPrelevements; ?></p>
+                    <p class="subtitle">Total Prélèvement</p>
+                </div>
+                <div class="stat-box">
+                    <p class="title"><?php echo $totalMoneyToday; ?> MD</p>
+                    <p class="subtitle">Total Money Today</p>
+                </div>
+                <div class="stat-box">
+                    <p class="title"><?php echo $totalUnpaidToday; ?> MAD</p>
+                    <p class="subtitle">Total Unpaid Today</p>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Patient ID</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>N° of Prélèvement</th>
+                            <th>Total Paid Amount</th>
+                            <th>Unpaid Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        foreach ($patients as $patient) {
+                            if (!isset($patient['patient_id'])) {
+                                echo "<tr><td colspan='6'>Patient ID not set.</td></tr>";
+                                continue;
+                            }
+                            $prelevements = $prelevement->readByPatient($patient['patient_id']);
+                            $totalPaidAmount = 0;
+                            $unpaidAmount = 0;
+                            foreach ($prelevements as $prelev) {
+                                $facture_data = $facture->readOne($prelev['prelevement_id']);
+                                if ($facture_data) {
+                                    $totalPaidAmount += $facture_data['prix_reduit'] + $facture_data['avance'];
+                                    $unpaidAmount += $facture_data['rest'];
+                                } else {
+                                    echo "<tr><td colspan='6'>No facture data for prelevement ID: " . $prelev['prelevement_id'] . "</td></tr>";
+                                }
+                            }
+                            ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($patient['patient_id']); ?></td>
+                                <td><?php echo htmlspecialchars($patient['name']); ?></td>
+                                <td><?php echo htmlspecialchars($patient['prenom']); ?></td>
+                                <td><?php echo count($prelevements); ?></td>
+                                <td><?php echo $totalPaidAmount; ?> MAD</td>
+                                <td><?php echo $unpaidAmount; ?> MAD</td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </body>
