@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique-Patient</title>
+    <link rel="stylesheet" href="histoiripatient.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="E:\Projetsliwi\imag\logo.png" type="image/x-icon">
+</head>
+<body>
+    <div class="container">
+        <button id="retour" onclick="window.history.back()">
+            <i class="retour-btn"><img src="E:\Projetsliwi\imag\left-arrow.png"></i>
+        </button>
+        <div class="patient-history">
+            <h2>Historique Patient</h2>
+            <div class="patient-info">
+                <div class="info-left">
+                    <div class="form-group">
+                        <label for="nomPrenom">Nom Prénom</label>
+                        <input type="text" id="nomPrenom" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Âge</label>
+                        <input type="text" id="age" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="pieceIdentite">Pièce identité</label>
+                        <input type="text" id="pieceIdentite" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="situationFamiliale">Situation Familiale</label>
+                        <input type="text" id="situationFamiliale" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="assurance">Assurance</label>
+                        <input type="text" id="assurance" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="telephone">Téléphone</label>
+                        <input type="text" id="telephone" readonly>
+                    </div>
+                </div>
+                <div class="info-right">
+                    <div class="form-group">
+                        <label for="neLe">Né(e) Le</label>
+                        <input type="text" id="neLe" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="sex">Sex</label>
+                        <input type="text" id="sex" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="numeroIdentite">N° Pièce Identité</label>
+                        <input type="text" id="numeroIdentite" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="text" id="email" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="immatriculation">Immatriculation</label>
+                        <input type="text" id="immatriculation" readonly> 
+                    </div>
+                    <div class="form-group">
+                        <label for="adresse">Adresse</label>
+                        <input type="text" id="adresse" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="prelevement">
+            <h2>Prélèvement</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Date Réception</th>
+                        <th>Date Création</th>
+                        <th>N° de Flacons</th>
+                        <th>Docteur Extérieur</th>
+                        <th>État de paiement</th>
+                        <th>Reste</th>
+                        <th>Ordonnance</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Type A</td>
+                        <td>01/01/2023</td>
+                        <td>02/01/2023</td>
+                        <td>5</td>
+                        <td>Dr. Smith</td>
+                        <td>Paid</td>
+                        <td>0,00</td>
+                        <td>Prescription</td>
+                        <td>
+                            <button class="print-btn"><img src="E:\Projetsliwi\imag\printer.png" alt="Print"></button>
+                            <button class="edit-btn"><img src="E:\Projetsliwi\imag\write.png" alt="Edit"></button>
+                            <button class="delete-btn"><img src="E:\Projetsliwi\imag\delete.png" alt="Delete"></button>
+                        </td>
+                    </tr>
+                    <!-- More rows can be added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="histoiripatient.js"></script>
+</body>
+</html>
