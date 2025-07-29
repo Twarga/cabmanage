@@ -4,6 +4,8 @@
 
 CabManage is a comprehensive web-based management system designed for medical laboratories specializing in pathology and cytology. This PHP-based application streamlines patient management, specimen tracking, billing, and reporting workflows to enhance operational efficiency in medical offices.
 
+For a developer overview see [docs/OVERVIEW.md](docs/OVERVIEW.md).
+
 ## ✨ Features
 
 - **🧑‍⚕️ User Role Management**
